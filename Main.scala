@@ -85,7 +85,7 @@ object Main {
     def main(args: Array[String]) {
         val params = argparse(args)
         val keyBits = 16 // TODO: Change as needed, maybe make dht take care of this
-        val dht = new DHT(keyBits, params.get("N"), params.get("E"), params.get("N"))
+        val dht = new DHT(keyBits, params.get("S"), params.get("E"), params.get("N"))
         val maxNodes = params.get("M")
         val writes = params.get("W")
         val increment = params.get("I")
