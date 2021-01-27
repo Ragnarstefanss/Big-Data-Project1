@@ -116,9 +116,10 @@ class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
         }
     }
 
-    def write(extentKey: String) = {
-        // starting Node = 
-        // Find correct Node [via fingertables]
+    def write(extentKey: String, startingNode: Node) = {
+        val id = this.extentHasher.hash(extentKey)
+        // Fingertable is in startingNode.fingerTable
+        // Find correct Node for id
     }
 }
 
