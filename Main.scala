@@ -69,7 +69,6 @@ class Node(keyBits: Int, val id: BigInt) {
 class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
     val keyBits = 10
     val mod = BigInt(2).pow(keyBits)
-    val keyLength = 10
     val rand = new RandomHelper()
     val nodeHasher = new Sha1(keyBits)
     val extentHasher = new Sha1(keyBits)
@@ -135,7 +134,17 @@ class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
     }
 
     private def generateInitialExtents() = {
-        // TODO: 
+        extentKeys.foreach((key) => {
+            val id = extentHasher.hash(key)
+            val node = findNodeResponsibleForId(nodes.get(this.sortedNodeIds.get(0)), id)
+            if (node.extents.containsKey(id)) throw new CollisionException()
+            node.extents.put(id, new Extent())
+            var copyNode = node.fingerTable(0)
+            for(n <- 1 to copies - 1) {
+                copyNode.extentCopies.put(id, new Extent())
+                copyNode = copyNode.fingerTable(0)
+            }
+        })
     }
 
     def addNodes(nodes: Int) = {
