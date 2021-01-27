@@ -4,6 +4,7 @@ import scala.math.BigInt
 import java.util.HashMap
 import java.util.Random
 import java.util.HashSet
+import java.util.ArrayList
 
 final case class CollisionException() extends Exception("Collision!", None.orNull) 
 
@@ -75,7 +76,7 @@ class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
     generateInitialNodes()
 
     private def generateInitialNodes() {
-        var tmpNodes = new Array[Node](nodeCount)
+        //var tmpNodes = new ArrayList[Node](nodeCount)
         var strSet = new HashSet[String]()
         var idSet = new HashSet[BigInt]()
         var i = 0
@@ -87,9 +88,10 @@ class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
             }
             strSet.add(newKey)
             idSet.add(newId)
-            tmpNodes(i) = new Node(keyBits, newId)
+            //tmpNodes.(new Node(keyBits, newId))
             i = i + 1
         }
+        System.exit(0)
         //this.nodes = tmpNodes.sortWith((n1, n2) => n1.id.compareTo(n2.id) < 0)
     }
 
@@ -122,8 +124,9 @@ class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
         // Update stats.... TODO
     }
 
-    def findNodeResponsibleForId(currentNode: Node, id: BigInt): Node {
-        // TODO
+    def findNodeResponsibleForId(currentNode: Node, id: BigInt): Node = {
+        
+        return null
     }
 }
 
@@ -177,8 +180,6 @@ object Main {
     def main(args: Array[String]) {
         val params = argparse(args)
         val dht = new DHT(params.get("S"), params.get("E"), params.get("N"))
-        dht.nodes.foreach(println)
-        return
         val maxNodes = params.get("M")
         val writes = params.get("W")
         val increment = params.get("I")
