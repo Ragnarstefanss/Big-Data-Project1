@@ -5,8 +5,19 @@ import java.util.HashMap
 import java.util.Random
 import java.util.HashSet
 import java.util.Dictionary
+import java.util.ArrayList
 
 final case class CollisionException() extends Exception("Collision!", None.orNull) 
+
+
+/*class KeyMaker() {
+
+    private def 
+    val filename = "fileopen.scala"
+    for (line <- Source.fromFile(filename).getLines) {
+        println(line)
+    }
+}*/
 
 class RandomHelper() {
     private val nodeKeyRNG = new Random()
@@ -41,10 +52,8 @@ class RandomHelper() {
         return extents(extentAccessRNG.nextInt(extents.length))
     }
 
-    def randomNode(nodes: HashMap[BigInt, Node]): Node = {
-        // TODO
-        val pick = nodeAccessRNG.nextInt(nodes.size())
-        return null
+    def randomNode(nodes: HashMap[BigInt, Node], ids: ArrayList[BigInt]): Node = {
+        return nodes.get(ids.get(nodeAccessRNG.nextInt(nodes.size())))
     }
 }
 
@@ -69,13 +78,14 @@ class Node(keyBits: Int, val id: BigInt) {
     var extentCopies = new HashMap[BigInt, Extent]
     var writes: Int = 0
 
-    override def toString() : String = {          
-        return this.id.toString()
+    override def toString() : String = {
+        return id.toString()
     }
 }
 
 class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
     val keyBits = 10
+    val mod = BigInt(2).pow(keyBits)
     val keyLength = 10
     val rand = new RandomHelper()
     val nodeHasher = new Sha1(keyBits)
@@ -83,6 +93,7 @@ class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
 
     var nodes = new HashMap[BigInt, Node]()
     val extentKeys = new Array[String](extents)
+    var sortedNodeIds = new ArrayList[BigInt]()
     
     createRandomExtentKeys()
     generateInitialNodes()
@@ -109,8 +120,30 @@ class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
             }
             this.nodes.put(newId, new Node(keyBits, newId))
         }
-        val sortedIds = this.nodes.keySet().stream().sorted().toArray()
-        // TODO: construct prev and fingertable links
+        this.nodes.keySet().stream().sorted().forEach((id) => this.sortedNodeIds.add(id))
+        
+        
+        val largestId = this.sortedNodeIds.get(nodeCount - 1)
+        var n = 0;
+        for(n <- 1 to nodeCount) {          
+            val currNode = this.nodes.get(this.sortedNodeIds.get((n - 1) % nodeCount))
+            currNode.prev = this.nodes.get(this.sortedNodeIds.get((nodeCount + n - 2) % nodeCount))            
+            
+            var currIndex = n % nodeCount
+            var offset = BigInt(1)
+            for (i <- 1 to keyBits) {
+                var target = (currNode.id + offset).mod(mod)
+                if (target > largestId) {
+                    currNode.fingerTable(i-1) = this.nodes.get(this.sortedNodeIds.get(0))
+                } else {
+                    while ((currNode.id + offset).mod(mod) > this.nodes.get(this.sortedNodeIds.get(currIndex)).id) {
+                        currIndex = (currIndex + 1) % nodeCount
+                    }
+                    currNode.fingerTable(i-1) = this.nodes.get(this.sortedNodeIds.get(currIndex))
+                }
+                offset *= 2
+            }
+        }
     }
 
     private def generateInitialExtents() = {
@@ -132,7 +165,7 @@ class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
     }
 
     def randomWrites(writes: Int) = {
-        val startingNode = rand.randomNode(nodes)
+        val startingNode = rand.randomNode(nodes, sortedNodeIds)
         var w = 0;
         if (false) { // TODO: remove (just slow to run this)
             for(w <- 1 to writes) {
@@ -212,5 +245,18 @@ object Main {
             analyze(params, dht)
             dht.addNodes(increment)
         }
+
+        dht.sortedNodeIds.forEach((id) => {
+            println("Node id: " + dht.nodes.get(id))
+            println("Prev node: " + dht.nodes.get(id).prev)
+            print("Fingertable: ")
+            dht.nodes.get(id).fingerTable.foreach((n) => print(n.id + " "))
+            println("\n")
+        })
+
+        println("All Node ids:")
+        dht.sortedNodeIds.forEach((id) => {
+            print(id + " ")
+        })
     }
 }
