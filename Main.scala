@@ -6,18 +6,25 @@ import java.util.Random
 import java.util.HashSet
 import java.util.Dictionary
 import java.util.ArrayList
+import scala.collection.mutable.Queue
+import scala.io.Source
 
 final case class CollisionException() extends Exception("Collision!", None.orNull) 
 
 
-/*class KeyMaker() {
+class KeyMaker() {
 
-    private def 
-    val filename = "fileopen.scala"
-    for (line <- Source.fromFile(filename).getLines) {
-        println(line)
+    val ips = new Queue[String]()
+    val files = new Queue[String]()
+
+    for (line <- Source.fromFile("ips.txt").getLines) {
+        ips.enqueue(line.trim())
     }
-}*/
+
+    for (line <- Source.fromFile("movies.txt").getLines) {
+        files.enqueue(line.trim() + ".avi")
+    }
+}
 
 class RandomHelper() {
     private val nodeKeyRNG = new Random()
@@ -243,6 +250,7 @@ object Main {
     }
 
     def main(args: Array[String]) {
+
         val params = argparse(args)
         val dht = new DHT(params.get("S"), params.get("E"), params.get("N"))
         val maxNodes = params.get("M")
