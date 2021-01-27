@@ -4,7 +4,7 @@ import scala.math.BigInt
 import java.util.HashMap
 import java.util.Random
 import java.util.HashSet
-import java.util.ArrayList
+import java.util.Dictionary
 
 final case class CollisionException() extends Exception("Collision!", None.orNull) 
 
@@ -35,6 +35,16 @@ class RandomHelper() {
 
     def randomExtentKey(n: Int): String = {
         return randStr(this.extentKeyRNG, n)
+    }
+
+    def randomExtent(extents: Array[String]): String = {
+        return extents(extentAccessRNG.nextInt(extents.length))
+    }
+
+    def randomNode(nodes: HashMap[BigInt, Node]): Node = {
+        // TODO
+        val pick = nodeAccessRNG.nextInt(nodes.size())
+        return null
     }
 }
 
@@ -73,28 +83,39 @@ class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
 
     var nodes = new HashMap[BigInt, Node]()
     val extentKeys = new Array[String](extents)
+    
+    createRandomExtentKeys()
     generateInitialNodes()
+    generateInitialExtents()
 
-    private def generateInitialNodes() {
-        //var tmpNodes = new ArrayList[Node](nodeCount)
-        var strSet = new HashSet[String]()
-        var idSet = new HashSet[BigInt]()
+    private def createRandomExtentKeys() = {
+        var set = new HashSet[String]()
         var i = 0
-        while (i < this.nodeCount) {
-            val newKey = rand.randomNodeKey(8)
-            val newId = nodeHasher.hash(newKey)
-            if (strSet.contains(newKey) || idSet.contains(newId)) {
-                throw new CollisionException()
+        while (i < extents) {
+            val str = rand.randomExtentKey(keyLength)
+            if (set.add(str)) {
+                extentKeys(i) = str
+                i += 1
             }
-            strSet.add(newKey)
-            idSet.add(newId)
-            //tmpNodes.(new Node(keyBits, newId))
-            i = i + 1
         }
-        System.exit(0)
-        //this.nodes = tmpNodes.sortWith((n1, n2) => n1.id.compareTo(n2.id) < 0)
     }
 
+    private def generateInitialNodes() = {
+        while (this.nodes.size() < nodeCount) {
+            val newKey = rand.randomNodeKey(8)
+            val newId = nodeHasher.hash(newKey)
+            if (this.nodes.containsKey(newId)) {
+                throw new CollisionException()
+            }
+            this.nodes.put(newId, new Node(keyBits, newId))
+        }
+        val sortedIds = this.nodes.keySet().stream().sorted().toArray()
+        // TODO: construct prev and fingertable links
+    }
+
+    private def generateInitialExtents() = {
+        // TODO: 
+    }
 
     def addNodes(nodes: Int) = {
         var n = 0;
@@ -111,10 +132,13 @@ class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
     }
 
     def randomWrites(writes: Int) = {
-        // TODO: Find out if all writes should start from the same node
+        val startingNode = rand.randomNode(nodes)
         var w = 0;
-        for(w <- 1 to writes) {
-            // TODO: Pick random extent and "write to it"
+        if (false) { // TODO: remove (just slow to run this)
+            for(w <- 1 to writes) {
+                val key = rand.randomExtent(extentKeys)
+                write(key, startingNode)
+            }
         }
     }
 
