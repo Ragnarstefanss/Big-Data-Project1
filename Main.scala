@@ -42,8 +42,7 @@ class Sha1(keyBits: Int) {
     private val mod = BigInt(2).pow(keyBits)
     private val md = java.security.MessageDigest.getInstance("SHA-1")
     
-    
-    def hash(key: String): BigInt =  {
+    def hash(key: String): BigInt = {
         return BigInt(this.md.digest(key.getBytes("UTF-8")).map("%02x".format(_)).mkString, 16).mod(this.mod)
     }
 }
@@ -61,12 +60,12 @@ class Node(keyBits: Int, val id: BigInt) {
 
     override def toString() : String = {          
         return this.id.toString()
-    } 
+    }
 }
 
 class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
-    val keyBits = 32
-    val keyLength = 8
+    val keyBits = 10
+    val keyLength = 10
     val rand = new RandomHelper()
     val nodeHasher = new Sha1(keyBits)
     val extentHasher = new Sha1(keyBits)
@@ -115,6 +114,11 @@ class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
         for(w <- 1 to writes) {
             // TODO: Pick random extent and "write to it"
         }
+    }
+
+    def write(extentKey: String) = {
+        // starting Node = 
+        // Find correct Node [via fingertables]
     }
 }
 
@@ -168,6 +172,8 @@ object Main {
     def main(args: Array[String]) {
         val params = argparse(args)
         val dht = new DHT(params.get("S"), params.get("E"), params.get("N"))
+        dht.nodes.foreach(println)
+        return
         val maxNodes = params.get("M")
         val writes = params.get("W")
         val increment = params.get("I")
