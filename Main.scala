@@ -70,7 +70,7 @@ class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
     val nodeHasher = new Sha1(keyBits)
     val extentHasher = new Sha1(keyBits)
 
-    var nodes: Array[Node] = null
+    var nodes = new HashMap[BigInt, Node]()
     val extentKeys = new Array[String](extents)
     generateInitialNodes()
 
@@ -90,7 +90,7 @@ class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
             tmpNodes(i) = new Node(keyBits, newId)
             i = i + 1
         }
-        this.nodes = tmpNodes.sortWith((n1, n2) => n1.id.compareTo(n2.id) < 0)
+        //this.nodes = tmpNodes.sortWith((n1, n2) => n1.id.compareTo(n2.id) < 0)
     }
 
 
@@ -122,7 +122,7 @@ class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
         // Update stats.... TODO
     }
 
-    def findNodeResponsibleForId(currentNode: Node, id: Int): Node {
+    def findNodeResponsibleForId(currentNode: Node, id: BigInt): Node {
         // TODO
     }
 }
