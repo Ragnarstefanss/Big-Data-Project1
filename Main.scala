@@ -3,7 +3,9 @@ import scala.math.pow
 import scala.math.BigInt
 import java.util.HashMap
 import java.util.Random
+import java.util.HashSet
 
+final case class CollisionException() extends Exception("Collision!", None.orNull) 
 
 class RandomHelper() {
     private val nodeKeyRNG = new Random()
@@ -46,17 +48,51 @@ class Sha1(keyBits: Int) {
     }
 }
 
-class Node() {
+class Extent() {
+    val writes: Int = 0
 }
 
-class DHT (var nodes: Int, val blocks: Int, val copies: Int) {
-    val keyBits = 32
-    val mod: Int = pow(2, keyBits).intValue()
-    val rand = new RandomHelper()
-    val nodeHasher = new Sha1()
-    val extentHasher = new Sha1()
+class Node(keyBits: Int, val id: BigInt) {
+    var prev: Node = null
+    var fingerTable: Array[Node] = new Array[Node](keyBits)
+    var extents = new HashMap[BigInt, Extent]()
+    var extentCopies = new HashMap[BigInt, Extent]
+    val writes: Int = 0
 
-    // TODO: Initialize the system
+    override def toString() : String = {          
+        return this.id.toString()
+    } 
+}
+
+class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
+    val keyBits = 32
+    val keyLength = 8
+    val rand = new RandomHelper()
+    val nodeHasher = new Sha1(keyBits)
+    val extentHasher = new Sha1(keyBits)
+
+    var nodes: Array[Node] = null
+    val extentKeys = new Array[String](extents)
+    generateInitialNodes()
+
+    private def generateInitialNodes() {
+        var tmpNodes = new Array[Node](nodeCount)
+        var strSet = new HashSet[String]()
+        var idSet = new HashSet[BigInt]()
+        var i = 0
+        while (i < this.nodeCount) {
+            val newKey = rand.randomNodeKey(8)
+            val newId = nodeHasher.hash(newKey)
+            if (strSet.contains(newKey) || idSet.contains(newId)) {
+                throw new CollisionException()
+            }
+            strSet.add(newKey)
+            idSet.add(newId)
+            tmpNodes(i) = new Node(keyBits, newId)
+            i = i + 1
+        }
+        this.nodes = tmpNodes.sortWith((n1, n2) => n1.id.compareTo(n2.id) < 0)
+    }
 
 
     def addNodes(nodes: Int) = {
@@ -70,7 +106,7 @@ class DHT (var nodes: Int, val blocks: Int, val copies: Int) {
 
     def addNode(key: String) {
         // TODO: Add node logic here
-        this.nodes += 1
+        this.nodeCount += 1
     }
 
     def randomWrites(writes: Int) = {
@@ -135,7 +171,7 @@ object Main {
         val maxNodes = params.get("M")
         val writes = params.get("W")
         val increment = params.get("I")
-        while (dht.nodes <= maxNodes) {
+        while (dht.nodeCount <= maxNodes) {
             dht.randomWrites(writes)
             analyze(params, dht)
             dht.addNodes(increment)
