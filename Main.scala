@@ -121,26 +121,34 @@ class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
             this.nodes.put(newId, new Node(keyBits, newId))
         }
         this.nodes.keySet().stream().sorted().forEach((id) => this.sortedNodeIds.add(id))
-        
+
+        def BinarySearchGreaterOrEqual(arr: ArrayList[BigInt], lookingFor: BigInt): Int = {
+            var lo = 0
+            var hi = arr.size()
+            val cap = hi
+            while (lo < hi) {
+                val mid = (lo + hi) / 2
+                if (arr.get(mid) < lookingFor) {
+                    lo = mid + 1
+                } else {
+                    hi = mid
+                }
+            }
+            if (hi == cap) return 0
+            return hi
+        }
         
         val largestId = this.sortedNodeIds.get(nodeCount - 1)
-        var n = 0;
+        var n = 0
         for(n <- 1 to nodeCount) {          
             val currNode = this.nodes.get(this.sortedNodeIds.get((n - 1) % nodeCount))
-            currNode.prev = this.nodes.get(this.sortedNodeIds.get((nodeCount + n - 2) % nodeCount))            
-            
-            var currIndex = n % nodeCount
-            var offset = BigInt(1)
+            currNode.prev = this.nodes.get(this.sortedNodeIds.get((nodeCount + n - 2) % nodeCount))
+
+            var i = 0
+            var offset = 1
             for (i <- 1 to keyBits) {
-                var target = (currNode.id + offset).mod(mod)
-                if (target > largestId) {
-                    currNode.fingerTable(i-1) = this.nodes.get(this.sortedNodeIds.get(0))
-                } else {
-                    while ((currNode.id + offset).mod(mod) > this.nodes.get(this.sortedNodeIds.get(currIndex)).id) {
-                        currIndex = (currIndex + 1) % nodeCount
-                    }
-                    currNode.fingerTable(i-1) = this.nodes.get(this.sortedNodeIds.get(currIndex))
-                }
+                val index = BinarySearchGreaterOrEqual(sortedNodeIds, (currNode.id + offset) % mod)
+                currNode.fingerTable(i - 1) = this.nodes.get(this.sortedNodeIds.get(index))
                 offset *= 2
             }
         }
