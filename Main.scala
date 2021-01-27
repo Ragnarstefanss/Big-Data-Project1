@@ -61,13 +61,23 @@ class Node(keyBits: Int, val id: BigInt) {
     var extentCopies = new HashMap[BigInt, Extent]
     var writes: Int = 0
 
+    def addExtent(id: BigInt) {
+        if (extents.containsKey(id)) throw new CollisionException()
+        extents.put(id, new Extent())
+    }
+
+    def addExtentCopy(id: BigInt) {
+        if (extents.containsKey(id)) throw new CollisionException()
+        extentCopies.put(id, new Extent())
+    }
+
     override def toString() : String = {
         return id.toString()
     }
 }
 
 class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
-    val keyBits = 10
+    val keyBits = 40
     val mod = BigInt(2).pow(keyBits)
     val rand = new RandomHelper()
     val nodeHasher = new Sha1(keyBits)
@@ -90,6 +100,22 @@ class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
         }
     }
 
+    def BinarySearchGreaterOrEqual(arr: ArrayList[BigInt], lookingFor: BigInt): Int = {
+        var lo = 0
+        var hi = arr.size()
+        val cap = hi
+        while (lo < hi) {
+            val mid = (lo + hi) / 2
+            if (arr.get(mid) < lookingFor) {
+                lo = mid + 1
+            } else {
+                hi = mid
+            }
+        }
+        if (hi == cap) return 0
+        return hi
+    }
+
     private def generateInitialNodes() = {
         while (this.nodes.size() < nodeCount) {
             val newKey = keyMaker.ips.dequeue()
@@ -100,22 +126,6 @@ class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
             this.nodes.put(newId, new Node(keyBits, newId))
         }
         this.nodes.keySet().stream().sorted().forEach((id) => this.sortedNodeIds.add(id))
-
-        def BinarySearchGreaterOrEqual(arr: ArrayList[BigInt], lookingFor: BigInt): Int = {
-            var lo = 0
-            var hi = arr.size()
-            val cap = hi
-            while (lo < hi) {
-                val mid = (lo + hi) / 2
-                if (arr.get(mid) < lookingFor) {
-                    lo = mid + 1
-                } else {
-                    hi = mid
-                }
-            }
-            if (hi == cap) return 0
-            return hi
-        }
         
         val largestId = this.sortedNodeIds.get(nodeCount - 1)
         var n = 0
@@ -136,12 +146,12 @@ class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
     private def generateInitialExtents() = {
         extentKeys.foreach((key) => {
             val id = extentHasher.hash(key)
-            val node = findNodeResponsibleForId(nodes.get(this.sortedNodeIds.get(0)), id)
-            if (node.extents.containsKey(id)) throw new CollisionException()
-            node.extents.put(id, new Extent())
+            val index = BinarySearchGreaterOrEqual(sortedNodeIds, id)
+            val node = this.nodes.get(this.sortedNodeIds.get(index))
+            node.addExtent(id)            
             var copyNode = node.fingerTable(0)
             for(n <- 1 to copies - 1) {
-                copyNode.extentCopies.put(id, new Extent())
+                copyNode.addExtentCopy(id)
                 copyNode = copyNode.fingerTable(0)
             }
         })
@@ -178,7 +188,7 @@ class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
         // Update stats.... TODO
     }
 
-    def distance(id1: BigInt, id2: BigInt) {
+    def distance(id1: BigInt, id2: BigInt): BigInt = {
         if (id1 <= id2) return id2 - id1
         return this.mod + id2 - id1
     }
@@ -187,14 +197,14 @@ class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
         if (currentNode.extents.containsKey(id)) return currentNode        
         var i = 0
         for (i <- keyBits - 1 to 0 by -1) {
-            val neighborId = currentNode.fingerTable[i].id
+            val neighborId = currentNode.fingerTable(i).id
             // If this doesnt work, try 
             // if (distance(neighborId, id) <= distance(currentNode.id, id))
             if (currentNode.id < neighborId && neighborId <= id) {
-                return findNodeResponsibleForId(currentNode.fingerTable[i], id)
+                return findNodeResponsibleForId(currentNode.fingerTable(i), id)
             }
         }
-        throw Exception("WAT!")
+        throw new Exception("WAT!")
     }
 }
 
@@ -270,5 +280,11 @@ object Main {
         dht.sortedNodeIds.forEach((id) => {
             print(id + " ")
         })
+        println()
+
+        dht.sortedNodeIds.forEach((id) => {
+            print(dht.nodes.get(id).extents.size() + " ")
+        })
+        println()
     }
 }
