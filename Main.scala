@@ -56,7 +56,7 @@ class Node(keyBits: Int, val id: BigInt) {
     var fingerTable: Array[Node] = new Array[Node](keyBits)
     var extents = new HashMap[BigInt, Extent]()
     var extentCopies = new HashMap[BigInt, Extent]
-    val writes: Int = 0
+    var writes: Int = 0
 
     override def toString() : String = {          
         return this.id.toString()
@@ -118,8 +118,12 @@ class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
 
     def write(extentKey: String, startingNode: Node) = {
         val id = this.extentHasher.hash(extentKey)
-        // Fingertable is in startingNode.fingerTable
-        // Find correct Node for id
+        val node = findNodeResponsibleForId(startingNode, id)
+        // Update stats.... TODO
+    }
+
+    def findNodeResponsibleForId(currentNode: Node, id: Int): Node {
+        // TODO
     }
 }
 
