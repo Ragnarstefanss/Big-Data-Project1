@@ -51,7 +51,10 @@ class Sha1(keyBits: Int) {
 }
 
 class Extent() {
-    val writes: Int = 0
+    var writes: Int = 0
+    def incrementWrites() = {
+        writes += 1
+    }
 }
 
 class Node(keyBits: Int, val id: BigInt) {
@@ -69,6 +72,11 @@ class Node(keyBits: Int, val id: BigInt) {
     def addExtentCopy(id: BigInt) {
         if (extents.containsKey(id)) throw new CollisionException()
         extentCopies.put(id, new Extent())
+    }
+
+    def incrementWrites(id: BigInt) = {
+        this.writes += 1
+        this.extents.get(id).incrementWrites()
     }
 
     override def toString() : String = {
@@ -174,18 +182,23 @@ class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
     def randomWrites(writes: Int) = {
         val startingNode = rand.randomNode(nodes, sortedNodeIds)
         var w = 0;
-        if (false) { // TODO: remove (just slow to run this)
-            for(w <- 1 to writes) {
-                val key = rand.randomExtent(extentKeys)
-                write(key, startingNode)
-            }
+        for(w <- 1 to writes) {
+            val key = rand.randomExtent(extentKeys)
+            write(key, startingNode)
         }
     }
 
     def write(extentKey: String, startingNode: Node) = {
         val id = this.extentHasher.hash(extentKey)
+        println(startingNode)
+        nodes.values().forEach((n) => {
+            if (n.extents.containsKey(id)) {
+                println("in " + n.id.toString())
+            }
+        })
+        System.exit(0)
         val node = findNodeResponsibleForId(startingNode, id)
-        // Update stats.... TODO
+        node.incrementWrites(id)
     }
 
     def distance(id1: BigInt, id2: BigInt): BigInt = {
@@ -199,8 +212,8 @@ class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
         for (i <- keyBits - 1 to 0 by -1) {
             val neighborId = currentNode.fingerTable(i).id
             // If this doesnt work, try 
-            // if (distance(neighborId, id) <= distance(currentNode.id, id))
-            if (currentNode.id < neighborId && neighborId <= id) {
+            if (distance(neighborId, id) <= distance(currentNode.id, id)) {
+            //if (currentNode.id < neighborId && neighborId <= id) {
                 return findNodeResponsibleForId(currentNode.fingerTable(i), id)
             }
         }
@@ -256,7 +269,6 @@ object Main {
     }
 
     def main(args: Array[String]) {
-
         val params = argparse(args)
         val dht = new DHT(params.get("S"), params.get("E"), params.get("N"))
         val maxNodes = params.get("M")
@@ -264,28 +276,9 @@ object Main {
         val increment = params.get("I")
         while (dht.nodeCount <= maxNodes) {
             dht.randomWrites(writes)
+            System.exit(0)
             analyze(params, dht)
             dht.addNodes(increment)
         }
-
-        dht.sortedNodeIds.forEach((id) => {
-            println("Node id: " + dht.nodes.get(id))
-            println("Prev node: " + dht.nodes.get(id).prev)
-            print("Fingertable: ")
-            dht.nodes.get(id).fingerTable.foreach((n) => print(n.id + " "))
-            println("\n")
-        })
-
-        println("All Node ids:")
-        dht.sortedNodeIds.forEach((id) => {
-            print(id + " ")
-        })
-        println()
-
-        println("Distribution:")
-        dht.sortedNodeIds.forEach((id) => {
-            print(dht.nodes.get(id).extents.size() + " ")
-        })
-        println()
     }
 }
