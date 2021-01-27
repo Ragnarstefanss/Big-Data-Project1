@@ -8,6 +8,7 @@ import java.util.Dictionary
 import java.util.ArrayList
 import scala.collection.mutable.Queue
 import scala.io.Source
+import java.awt.RenderingHints.Key
 
 final case class CollisionException() extends Exception("Collision!", None.orNull) 
 
@@ -27,33 +28,8 @@ class KeyMaker() {
 }
 
 class RandomHelper() {
-    private val nodeKeyRNG = new Random()
-    private val extentKeyRNG = new Random()
     private val nodeAccessRNG = new Random()
     private val extentAccessRNG = new Random()
-    
-    private val printableChars = "!\"#$%&()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
-
-    private def randChar(rng: Random): Char = {
-        return printableChars(rng.nextInt(printableChars.length()))
-    }
-
-    private def randStr(rng: Random, n: Int): String = {
-        var strB = new StringBuilder()
-        var i = 0        
-        for(n <- 1 to n) {
-            strB.append(randChar(rng))
-        }
-        return strB.toString()
-    }
-
-    def randomNodeKey(n: Int): String = {
-        return randStr(this.nodeKeyRNG, n)
-    }
-
-    def randomExtentKey(n: Int): String = {
-        return randStr(this.extentKeyRNG, n)
-    }
 
     def randomExtent(extents: Array[String]): String = {
         return extents(extentAccessRNG.nextInt(extents.length))
@@ -97,30 +73,27 @@ class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
     val rand = new RandomHelper()
     val nodeHasher = new Sha1(keyBits)
     val extentHasher = new Sha1(keyBits)
+    val keyMaker = new KeyMaker()
 
     var nodes = new HashMap[BigInt, Node]()
     val extentKeys = new Array[String](extents)
     var sortedNodeIds = new ArrayList[BigInt]()
     
-    createRandomExtentKeys()
+    createExtentKeys()
     generateInitialNodes()
     generateInitialExtents()
 
-    private def createRandomExtentKeys() = {
-        var set = new HashSet[String]()
+    private def createExtentKeys() = {
         var i = 0
         while (i < extents) {
-            val str = rand.randomExtentKey(keyLength)
-            if (set.add(str)) {
-                extentKeys(i) = str
-                i += 1
-            }
+            extentKeys(i) = keyMaker.files.dequeue()
+            i+= 1
         }
     }
 
     private def generateInitialNodes() = {
         while (this.nodes.size() < nodeCount) {
-            val newKey = rand.randomNodeKey(8)
+            val newKey = keyMaker.ips.dequeue()
             val newId = nodeHasher.hash(newKey)
             if (this.nodes.containsKey(newId)) {
                 throw new CollisionException()
