@@ -178,9 +178,23 @@ class DHT (var nodeCount: Int, val extents: Int, val copies: Int) {
         // Update stats.... TODO
     }
 
+    def distance(id1: BigInt, id2: BigInt) {
+        if (id1 <= id2) return id2 - id1
+        return this.mod + id2 - id1
+    }
+
     def findNodeResponsibleForId(currentNode: Node, id: BigInt): Node = {
-        
-        return null
+        if (currentNode.extents.containsKey(id)) return currentNode        
+        var i = 0
+        for (i <- keyBits - 1 to 0 by -1) {
+            val neighborId = currentNode.fingerTable[i].id
+            // If this doesnt work, try 
+            // if (distance(neighborId, id) <= distance(currentNode.id, id))
+            if (currentNode.id < neighborId && neighborId <= id) {
+                return findNodeResponsibleForId(currentNode.fingerTable[i], id)
+            }
+        }
+        throw Exception("WAT!")
     }
 }
 
