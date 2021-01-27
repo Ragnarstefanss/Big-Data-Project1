@@ -1,13 +1,60 @@
 
 import scala.math.pow
+import scala.math.BigInt
 import java.util.HashMap
+import java.util.Random
 
-class Node() {
-    // TODO: implement
+
+class RandomHelper() {
+    private val nodeKeyRNG = new Random()
+    private val extentKeyRNG = new Random()
+    private val nodeAccessRNG = new Random()
+    private val extentAccessRNG = new Random()
+    
+    private val printableChars = "!\"#$%&()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
+
+    private def randChar(rng: Random): Char = {
+        return printableChars(rng.nextInt(printableChars.length()))
+    }
+
+    private def randStr(rng: Random, n: Int): String = {
+        var strB = new StringBuilder()
+        var i = 0        
+        for(n <- 1 to n) {
+            strB.append(randChar(rng))
+        }
+        return strB.toString()
+    }
+
+    def randomNodeKey(n: Int): String = {
+        return randStr(this.nodeKeyRNG, n)
+    }
+
+    def randomExtentKey(n: Int): String = {
+        return randStr(this.extentKeyRNG, n)
+    }
 }
 
-class DHT (keyBits: Int, var nodes: Int, val blocks: Int, val copies: Int) {
-    var mod: Int = pow(2, keyBits).intValue()
+
+class Sha1(keyBits: Int) {
+    private val mod = BigInt(2).pow(keyBits)
+    private val md = java.security.MessageDigest.getInstance("SHA-1")
+    
+    
+    def hash(key: String): BigInt =  {
+        return BigInt(this.md.digest(key.getBytes("UTF-8")).map("%02x".format(_)).mkString, 16).mod(this.mod)
+    }
+}
+
+class Node() {
+}
+
+class DHT (var nodes: Int, val blocks: Int, val copies: Int) {
+    val keyBits = 32
+    val mod: Int = pow(2, keyBits).intValue()
+    val rand = new RandomHelper()
+    val nodeHasher = new Sha1()
+    val extentHasher = new Sha1()
 
     // TODO: Initialize the system
 
@@ -84,8 +131,7 @@ object Main {
 
     def main(args: Array[String]) {
         val params = argparse(args)
-        val keyBits = 16 // TODO: Change as needed, maybe make dht take care of this
-        val dht = new DHT(keyBits, params.get("S"), params.get("E"), params.get("N"))
+        val dht = new DHT(params.get("S"), params.get("E"), params.get("N"))
         val maxNodes = params.get("M")
         val writes = params.get("W")
         val increment = params.get("I")
