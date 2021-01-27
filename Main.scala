@@ -282,6 +282,7 @@ object Main {
         })
         println()
 
+        println("Distribution:")
         dht.sortedNodeIds.forEach((id) => {
             print(dht.nodes.get(id).extents.size() + " ")
         })
