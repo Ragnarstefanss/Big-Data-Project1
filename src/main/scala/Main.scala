@@ -4,7 +4,10 @@ import java.util.HashMap
 
 object Main extends App {
 
-  def defaultArgs(): HashMap[String, Int] = {        
+  def defaultArgs(): HashMap[String, Int] = {
+
+    /** Default values for args.
+      */
     var defaultArgs = new HashMap[String, Int]()
     defaultArgs.put("S", 10)
     defaultArgs.put("E", 10000)
@@ -12,19 +15,34 @@ object Main extends App {
     defaultArgs.put("W", 1000000)
     defaultArgs.put("I", 5)
     defaultArgs.put("M", 30)
-    return defaultArgs        
+    return defaultArgs
   }
 
   def argparse(args: Array[String]): HashMap[String, Int] = {
-    var argMap = defaultArgs()   
+
+    /** Parse arguments.
+      *  - S 7
+      *     Node count at start is 7
+      *  - E 1600
+      *     Extent count is 1600
+      *  - N 2
+      *     Each extent is stored in 2 copies
+      *  - W 150
+      *     Write operations performed each iteration is 150
+      *  - I 2
+      *     We add 2 more nodes after each iteration
+      *  - M 11
+      *     We stop when node have reached a total of 11
+      */
+    var argMap = defaultArgs()
     def next(i: Int): Unit = {
       if (i < args.length - 1) {
         var value = 0
         try {
-          value = args(i+1).toInt
+          value = args(i + 1).toInt
         } catch {
           case e: NumberFormatException => {
-            next(i+1)
+            next(i + 1)
             return
           }
         }
@@ -36,7 +54,7 @@ object Main extends App {
           case "-W" => argMap.put("W", value)
           case "-I" => argMap.put("I", value)
           case "-M" => argMap.put("M", value)
-          case _ => jump = 1
+          case _    => jump = 1
         }
         next(i + jump)
       }
