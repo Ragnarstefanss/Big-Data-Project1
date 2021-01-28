@@ -69,10 +69,32 @@ object Main extends App {
   val maxNodes = params.get("M")
   val writes = params.get("W")
   val increment = params.get("I")
-  while (dht.nodeCount <= maxNodes) {
+  /*while (dht.nodeCount <= maxNodes) {
     dht.randomWrites(writes)
-    System.exit(0)
     stats.analyze(params, dht)
     dht.addNodes(increment)
-  }
+  }*/
+
+  
+
+  dht.sortedNodeIds.forEach((id) => {
+    println("Node id: " + dht.nodes.get(id))
+    println("Prev node: " + dht.nodes.get(id).prev)
+    print("Fingertable: ")
+    dht.nodes.get(id).fingerTable.foreach((n) => print(n.id + " "))
+    println("\n")
+  })
+
+  println("All Node ids:")
+  dht.sortedNodeIds.forEach((id) => {
+    print(s"$id ")
+  })
+  println()
+
+  println("Distribution:")
+  dht.sortedNodeIds.forEach((id) => {
+    val x = dht.nodes.get(id).extents.size()
+    print(s"$x ")
+  })
+  println()
 }
