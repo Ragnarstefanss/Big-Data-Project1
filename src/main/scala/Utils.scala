@@ -14,7 +14,7 @@ class KeyMaker() {
   val files = new Queue[String]()
   for (line <- Source.fromFile("ips.txt").getLines()) 
     ips.enqueue(line.trim())
-  for (line <- Source.fromFile("movies.txt").getLines())
+  for (line <- Source.fromFile("movies.txt")("UTF-8").getLines())
     files.enqueue(line.trim() + ".avi")
 }
 

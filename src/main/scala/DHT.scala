@@ -160,18 +160,12 @@ class DHT(
     /** Write to a given extent by key, starting from some node.
       */
     val id = hasher.hash(extentKey)
-    /*
-        // For-Debugging
-        println(startingNode)
-        nodes.values().forEach((n) => {
-            if (n.extents.containsKey(id)) {
-                println("in " + n.id.toString())
-            }
-        })
-        System.exit(0)
-     */
-    val node = findNodeResponsibleForId(startingNode, id)
+    var node = startingNode
+    if (!node.extents.containsKey(id)) {
+      node = findNodeResponsibleForId(startingNode, id)
+    }
     node.incrementWrites(id)
+    // TODO: increment copies
   }
 
   private def distance(id1: BigInt, id2: BigInt): BigInt = {
@@ -185,18 +179,19 @@ class DHT(
     /** Find the node responsible for a given id. We assume this id exists in dht.
       * It uses fingerbale to find the node closest to the id.
       */
-
-    // TODO: Not working!
-    if (currentNode.extents.containsKey(id)) return currentNode
-    var i = 0
-    for (i <- keyBits - 1 to 0 by -1) {
-      val neighborId = currentNode.fingerTable(i).id
-      // If this doesnt work, try
-      if (distance(neighborId, id) <= distance(currentNode.id, id)) {
-        //if (currentNode.id < neighborId && neighborId <= id) {
-        return findNodeResponsibleForId(currentNode.fingerTable(i), id)
+    var successor = currentNode.fingerTable(0)    
+    if (!successor.extents.containsKey(id)) {
+      var i = 0
+      for (i <- 1 to keyBits - 1) {
+        val neighbor = currentNode.fingerTable(keyBits - i)
+        if (neighbor.id > currentNode.id)  {
+          if (id < currentNode.id || neighbor.id <= id) return findNodeResponsibleForId(neighbor, id)
+        } else {
+          if (id >= neighbor.id && id < currentNode.id) return findNodeResponsibleForId(neighbor, id)
+        }
       }
+      return findNodeResponsibleForId(successor, id)
     }
-    throw new Exception("WAT!")
+    return successor
   }
 }
