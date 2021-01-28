@@ -77,11 +77,13 @@ object Main extends App {
   val writes = params.get("W")
   val increment = params.get("I")
 
-  dht.sortedNodeIds.forEach((id) => {
+  /*dht.sortedNodeIds.forEach((id) => {
     println(id)
     dht.nodes.get(id).extents.keySet().forEach((k) => print(k + " "))
     println()
-  })
+  })*/
+
+  dht.addNodes(1)
 
   System.exit(0)
 
