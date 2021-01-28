@@ -68,64 +68,13 @@ object Main extends App {
   val dht = new DHT(params.get("S"), params.get("E"), params.get("N"))
   val maxNodes = params.get("M")
   val writes = params.get("W")
-  val increment = params.get("I")
-
-  println("All Node ids:")
-  dht.sortedNodeIds.forEach((id) => {
-    print(s"$id ")
-  })
-  println()
-
-  println("Distribution:")
-  dht.sortedNodeIds.forEach((id) => {
-    val x = dht.nodes.get(id).extents.size()
-    print(s"$x ")
-  })
-  println()
-
-  
-  dht.randomWrites(writes)
-
-
-
-  println("Distribution:")
-  dht.sortedNodeIds.forEach((id) => {
-    val x = dht.nodes.get(id).writes
-    print(s"$x ")
-  })
-  println()
-
-  System.exit(0)
-  
+  val increment = params.get("I")  
 
   while (dht.nodeCount <= maxNodes) {
     dht.randomWrites(writes)
-    System.exit(0)
     stats.analyze(params, dht)
-    dht.addNodes(increment)
+    //dht.addNodes(increment)
+    System.exit(0)
   }
-  
-
-  // DEBUG Stuff:
-  /*dht.sortedNodeIds.forEach((id) => {
-    println("Node id: " + dht.nodes.get(id))
-    println("Prev node: " + dht.nodes.get(id).prev)
-    print("Fingertable: ")
-    dht.nodes.get(id).fingerTable.foreach((n) => print(n.id + " "))
-    println("\n")
-  })
-
-  println("All Node ids:")
-  dht.sortedNodeIds.forEach((id) => {
-    print(s"$id ")
-  })
-  println()
-
-  println("Distribution:")
-  dht.sortedNodeIds.forEach((id) => {
-    val x = dht.nodes.get(id).extents.size()
-    print(s"$x ")
-  })
-  println()*/
 }
  

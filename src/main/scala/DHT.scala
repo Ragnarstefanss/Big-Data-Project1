@@ -18,6 +18,9 @@ class DHT(
   val extentKeys = new Array[String](extents)
   var sortedNodeIds = new ArrayList[BigInt]()
 
+  var jumps = new ArrayList[Int]()
+  var currJump = -1
+
   createExtentKeys()
   generateInitialNodes()
   generateInitialExtents()
@@ -159,19 +162,21 @@ class DHT(
 
     /** Write to a given extent by key, starting from some node.
       */
+    jumps.add(0)
+    currJump += 1
     val id = hasher.hash(extentKey)
     var node = startingNode
     if (!node.extents.containsKey(id)) {
       node = findNodeResponsibleForId(startingNode, id)
     }
     node.incrementWrites(id)
-    // TODO: increment copies
-  }
-
-  private def distance(id1: BigInt, id2: BigInt): BigInt = {
-    // Might not use this...
-    if (id1 <= id2) return id2 - id1
-    return this.mod + id2 - id1
+    
+    var copy = node.fingerTable(0)
+    var i = 0
+    for (i <- 1 to copies - 1) {
+      copy.incrementWritesCopy(id)
+      copy = copy.fingerTable(0)
+    }
   }
 
   private def findNodeResponsibleForId(currentNode: Node, id: BigInt): Node = {
@@ -181,6 +186,7 @@ class DHT(
       */
     var successor = currentNode.fingerTable(0)    
     if (!successor.extents.containsKey(id)) {
+      jumps.set(currJump, jumps.get(currJump) + 1)
       var i = 0
       for (i <- 1 to keyBits - 1) {
         val neighbor = currentNode.fingerTable(keyBits - i)

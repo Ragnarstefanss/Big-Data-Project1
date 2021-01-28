@@ -31,6 +31,10 @@ class Node(keyBits: Int, val id: BigInt) {
     this.extents.get(id).incrementWrites()
   }
 
+  def incrementWritesCopy(id: BigInt) = {
+    this.extentCopies.get(id).incrementWrites()
+  }
+
   override def toString(): String = {
     return id.toString()
   }
