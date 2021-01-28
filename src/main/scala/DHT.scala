@@ -151,19 +151,33 @@ class DHT(
     })
   }
 
-  private def addNode(key: BigInt) = {
+  private def addNode(id: BigInt) = {
 
     /** Add a single node given its key. Its id is the hash of the key.
       */
+    val successor = findNodeResponsibleForId(rand.randomNode(nodes, sortedNodeIds), id)
+    val newNode = new Node(keyBits, id)
+    newNode.prev = successor.prev
+    successor.prev = newNode
 
-    // TODO:
-    // * find place in circle (e.g. prev and successor)
-    // * Move data from successor to node with keys (prev.id+1, newnode.id)
-    // * Move copies with keys (prev.id+1, newnode.id) from the last node containg them
-    //   (succer of succesor of su... number of copies times)
-    // * Update fingertables
-    // * [Maybe] update sorted list of ids (doubt we need that)
-    // * 
+    var lastCopyOfKeys = successor
+    var i = 0
+    for (i <- 1 to copies - 1) lastCopyOfKeys = lastCopyOfKeys.fingerTable(0)
+    
+    // TODO: less filter is not enough, cause ... ring wrap
+    successor.extents.keySet().stream().filter(_ <= id).forEach((k) => {
+      val extent = successor.extents.get(k)
+      successor.extents.remove(k)
+      successor.extentCopies.put(k, lastCopyOfKeys.extentCopies.get(k))
+      lastCopyOfKeys.extentCopies.remove(k)      
+    })
+
+
+    // Sort nodeids for experimental purposes only
+    // TODO
+    
+    // Update fingertable
+    // TODO
     
     this.nodeCount += 1
   }
