@@ -27,6 +27,14 @@ class DHT(
 
   // Interface
 
+  def resetJumps() = {
+    /**
+      * Reset jump tracking between experiments.
+      */
+    jumps.clear()
+    currJump = -1
+  }
+
   def addNodes(nodes: Int) = {
 
     /** Add <nodes> new Nodes to the system.
@@ -176,7 +184,7 @@ class DHT(
     // Sort nodeids for experimental purposes only
     // TODO
     
-    // Update fingertable
+    // Update fingertables
     // TODO
     
     this.nodeCount += 1

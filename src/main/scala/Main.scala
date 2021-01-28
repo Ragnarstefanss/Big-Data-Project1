@@ -15,6 +15,7 @@ object Main extends App {
     defaultArgs.put("W", 1000000)
     defaultArgs.put("I", 5)
     defaultArgs.put("M", 30)
+    defaultArgs.put("B", 40)
     return defaultArgs
   }
 
@@ -33,6 +34,8 @@ object Main extends App {
       *     We add 2 more nodes after each iteration
       *  - M 11
       *     We stop when node have reached a total of 11
+      *  - B 50
+      *     Bits in id space
       */
     var argMap = defaultArgs()
     def next(i: Int): Unit = {
@@ -54,6 +57,7 @@ object Main extends App {
           case "-W" => argMap.put("W", value)
           case "-I" => argMap.put("I", value)
           case "-M" => argMap.put("M", value)
+          case "-B" => argMap.put("B", value)
           case _    => jump = 1
         }
         next(i + jump)
@@ -65,15 +69,17 @@ object Main extends App {
 
   val stats = new Stats()
   val params = argparse(args)
-  val dht = new DHT(params.get("S"), params.get("E"), params.get("N"))
+  val dht = new DHT(params.get("S"), params.get("E"), params.get("N"), params.get("B"))
   val maxNodes = params.get("M")
   val writes = params.get("W")
   val increment = params.get("I")
 
+  var experiment = 1
   while (dht.nodeCount <= maxNodes) {
     dht.randomWrites(writes)
-    stats.analyze(params, dht)
+    stats.analyze(params, dht, experiment)
     //dht.addNodes(increment)
+    experiment += 1
     System.exit(0)
   }
 }
