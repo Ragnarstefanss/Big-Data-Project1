@@ -116,11 +116,11 @@ class DHT(
         this.nodes.get(this.sortedNodeIds.get((nodeCount + n - 2) % nodeCount))
 
       var i = 0
-      var offset = 1
+      var offset = BigInt(1)
       for (i <- 1 to keyBits) {
         val index = binarySearchGreaterOrEqual(
           sortedNodeIds,
-          (currNode.id + offset) % mod
+          (currNode.id + offset).mod(mod)
         )
         currNode.fingerTable(i - 1) =
           this.nodes.get(this.sortedNodeIds.get(index))
