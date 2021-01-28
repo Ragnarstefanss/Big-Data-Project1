@@ -30,7 +30,7 @@
             "name": "scala-compiler",
             "version": "2.13.3",
             "options": [
-                
+                "-deprecation"
             ],
             "jars": [
                 "C:\\Users\\jonst\\AppData\\Local\\Coursier\\cache\\v1\\https\\repo1.maven.org\\maven2\\org\\scala-lang\\scala-compiler\\2.13.3\\scala-compiler-2.13.3.jar",
