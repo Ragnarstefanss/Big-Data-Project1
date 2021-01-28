@@ -1,6 +1,8 @@
 package dht
 
 import java.util.HashMap
+import java.util.ArrayList
+import java.util.Comparator
 
 object Main extends App {
 
@@ -74,12 +76,22 @@ object Main extends App {
   val writes = params.get("W")
   val increment = params.get("I")
 
+  dht.sortedNodeIds.forEach((id) => {
+    println(id)
+    dht.nodes.get(id).extents.keySet().forEach((k) => print(k + " "))
+    println()
+  })
+
+  System.exit(0)
+
+
   var experiment = 1
   while (dht.nodeCount <= maxNodes) {
     dht.randomWrites(writes)
     stats.analyze(params, dht, experiment)
     //dht.addNodes(increment)
     experiment += 1
+    dht.resetJumps()
     System.exit(0)
   }
 }

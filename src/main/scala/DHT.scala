@@ -2,6 +2,7 @@ package dht
 
 import java.util.HashMap
 import java.util.ArrayList
+import javax.swing.text.StyledEditorKit.BoldAction
 
 class DHT(
     var nodeCount: Int,
@@ -163,31 +164,57 @@ class DHT(
 
     /** Add a single node given its key. Its id is the hash of the key.
       */
-    val successor = findNodeResponsibleForId(rand.randomNode(nodes, sortedNodeIds), id)
+    // Add node to network
+    if (nodes.containsKey(id)) throw new CollisionException()
     val newNode = new Node(keyBits, id)
-    newNode.prev = successor.prev
-    successor.prev = newNode
+    nodes.put(id, newNode)
 
+    // Find successor
+    val successor = findNodeResponsibleForId(rand.randomNode(nodes, sortedNodeIds), id)
+    
+    // Update prev and next links
+    newNode.prev = successor.prev
+    newNode.prev.fingerTable(0) = newNode
+    successor.prev = newNode
+    newNode.fingerTable(0) = successor
+
+    // Get node with last copy
     var lastCopyOfKeys = successor
     var i = 0
     for (i <- 1 to copies - 1) lastCopyOfKeys = lastCopyOfKeys.fingerTable(0)
     
-    // TODO: less filter is not enough, cause ... ring wrap
-    successor.extents.keySet().stream().filter(_ <= id).forEach((k) => {
+    // Filter ids to consume
+    val wrap = id < newNode.prev.id
+    def _filter(k: BigInt): Boolean = {
+      if (wrap) return k <= id || k > newNode.prev.id
+      return k <= id
+    }
+
+    // Move extents 
+    successor.extents.keySet().stream().filter(_filter).forEach((k) => {
       val extent = successor.extents.get(k)
       successor.extents.remove(k)
       successor.extentCopies.put(k, lastCopyOfKeys.extentCopies.get(k))
       lastCopyOfKeys.extentCopies.remove(k)      
     })
 
-
-    // Sort nodeids for experimental purposes only
-    // TODO
+    // Done for experimental purposes, not used for adding or finding nodes
+    sortedNodeIds.add(id)
+    sortedNodeIds.sort((id1, id2) => id1.compareTo(id2))
     
     // Update fingertables
-    // TODO
+    nodes.values.forEach(updateFingerTable)
     
+    // Counter
     this.nodeCount += 1
+  }
+
+  private def updateFingerTable(node: Node) = {
+    var offset = BigInt(1)
+    for (i <- 1 to keyBits - 1) {
+      node.fingerTable(i) = findNodeResponsibleForId(node, node.id + offset)
+      offset *= 2
+    }
   }
 
   private def write(extentKey: String, startingNode: Node) = {
@@ -216,8 +243,10 @@ class DHT(
     /** Find the node responsible for a given id. We assume this id exists in dht.
       * It uses fingerbale to find the node closest to the id.
       */
-    var successor = currentNode.fingerTable(0)    
-    if (!successor.extents.containsKey(id)) {
+    var successor = currentNode.fingerTable(0)        
+    val found = (currentNode.id < successor.id && currentNode.id < id && id <= successor.id) || 
+      (currentNode.id > successor.id && (id > currentNode.id || id < successor.id))
+    if (!found) {
       jumps.set(currJump, jumps.get(currJump) + 1)
       var i = 0
       for (i <- 1 to keyBits - 1) {
