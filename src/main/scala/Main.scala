@@ -68,7 +68,7 @@ object Main extends App {
   val dht = new DHT(params.get("S"), params.get("E"), params.get("N"))
   val maxNodes = params.get("M")
   val writes = params.get("W")
-  val increment = params.get("I")  
+  val increment = params.get("I")
 
   while (dht.nodeCount <= maxNodes) {
     dht.randomWrites(writes)

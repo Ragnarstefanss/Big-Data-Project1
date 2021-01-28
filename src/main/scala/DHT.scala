@@ -33,8 +33,8 @@ class DHT(
       */
     var n = 0;
     for (n <- 1 to nodes) {
-      // Generate random key
-      val key = "placeholder"
+      val key = hasher.hash(keyMaker.ips.dequeue())
+      if (this.nodes.containsKey(key)) throw new CollisionException()
       this.addNode(key)
     }
   }
@@ -99,6 +99,7 @@ class DHT(
     while (this.nodes.size() < nodeCount) {
       val newKey = keyMaker.ips.dequeue()
       val newId = hasher.hash(newKey)
+
       if (this.nodes.containsKey(newId)) {
         throw new CollisionException()
       }
@@ -150,11 +151,20 @@ class DHT(
     })
   }
 
-  private def addNode(key: String) = {
+  private def addNode(key: BigInt) = {
 
     /** Add a single node given its key. Its id is the hash of the key.
       */
-    // TODO: Add node logic here
+
+    // TODO:
+    // * find place in circle (e.g. prev and successor)
+    // * Move data from successor to node with keys (prev.id+1, newnode.id)
+    // * Move copies with keys (prev.id+1, newnode.id) from the last node containg them
+    //   (succer of succesor of su... number of copies times)
+    // * Update fingertables
+    // * [Maybe] update sorted list of ids (doubt we need that)
+    // * 
+    
     this.nodeCount += 1
   }
 
