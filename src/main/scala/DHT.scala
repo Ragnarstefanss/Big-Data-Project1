@@ -29,8 +29,8 @@ class DHT(
   // Interface
 
   def resetJumps() = {
-    /**
-      * Reset jump tracking between experiments.
+
+    /** Reset jump tracking between experiments.
       */
     jumps.clear()
     currJump = -1
@@ -170,8 +170,9 @@ class DHT(
     nodes.put(id, newNode)
 
     // Find successor
-    val successor = findNodeResponsibleForId(rand.randomNode(nodes, sortedNodeIds), id)
-    
+    val successor =
+      findNodeResponsibleForId(rand.randomNode(nodes, sortedNodeIds), id)
+
     // Update prev and next links
     newNode.prev = successor.prev
     newNode.prev.fingerTable(0) = newNode
@@ -182,7 +183,7 @@ class DHT(
     var lastCopyOfKeys = successor
     var i = 0
     for (i <- 1 to copies - 1) lastCopyOfKeys = lastCopyOfKeys.fingerTable(0)
-    
+
     // Filter ids to consume
     val wrap = id < newNode.prev.id
     def _filter(k: BigInt): Boolean = {
@@ -190,21 +191,25 @@ class DHT(
       return k <= id
     }
 
-    // Move extents 
-    successor.extents.keySet().stream().filter(_filter).forEach((k) => {
-      val extent = successor.extents.get(k)
-      successor.extents.remove(k)
-      successor.extentCopies.put(k, lastCopyOfKeys.extentCopies.get(k))
-      lastCopyOfKeys.extentCopies.remove(k)      
-    })
+    // Move extents
+    successor.extents
+      .keySet()
+      .stream()
+      .filter(_filter)
+      .forEach((k) => {
+        val extent = successor.extents.get(k)
+        successor.extents.remove(k)
+        successor.extentCopies.put(k, lastCopyOfKeys.extentCopies.get(k))
+        lastCopyOfKeys.extentCopies.remove(k)
+      })
 
     // Done for experimental purposes, not used for adding or finding nodes
     sortedNodeIds.add(id)
     sortedNodeIds.sort((id1, id2) => id1.compareTo(id2))
-    
+
     // Update fingertables
     nodes.values.forEach(updateFingerTable)
-    
+
     // Counter
     this.nodeCount += 1
   }
@@ -229,7 +234,7 @@ class DHT(
       node = findNodeResponsibleForId(startingNode, id)
     }
     node.incrementWrites(id)
-    
+
     var copy = node.fingerTable(0)
     var i = 0
     for (i <- 1 to copies - 1) {
@@ -243,18 +248,21 @@ class DHT(
     /** Find the node responsible for a given id. We assume this id exists in dht.
       * It uses fingerbale to find the node closest to the id.
       */
-    var successor = currentNode.fingerTable(0)        
-    val found = (currentNode.id < successor.id && currentNode.id < id && id <= successor.id) || 
-      (currentNode.id > successor.id && (id > currentNode.id || id < successor.id))
+    var successor = currentNode.fingerTable(0)
+    val found =
+      (currentNode.id < successor.id && currentNode.id < id && id <= successor.id) ||
+        (currentNode.id > successor.id && (id > currentNode.id || id < successor.id))
     if (!found) {
       jumps.set(currJump, jumps.get(currJump) + 1)
       var i = 0
       for (i <- 1 to keyBits - 1) {
         val neighbor = currentNode.fingerTable(keyBits - i)
-        if (neighbor.id > currentNode.id)  {
-          if (id < currentNode.id || neighbor.id <= id) return findNodeResponsibleForId(neighbor, id)
+        if (neighbor.id > currentNode.id) {
+          if (id < currentNode.id || neighbor.id <= id)
+            return findNodeResponsibleForId(neighbor, id)
         } else {
-          if (id >= neighbor.id && id < currentNode.id) return findNodeResponsibleForId(neighbor, id)
+          if (id >= neighbor.id && id < currentNode.id)
+            return findNodeResponsibleForId(neighbor, id)
         }
       }
       return findNodeResponsibleForId(successor, id)

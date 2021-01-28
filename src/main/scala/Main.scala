@@ -71,7 +71,8 @@ object Main extends App {
 
   val stats = new Stats()
   val params = argparse(args)
-  val dht = new DHT(params.get("S"), params.get("E"), params.get("N"), params.get("B"))
+  val dht =
+    new DHT(params.get("S"), params.get("E"), params.get("N"), params.get("B"))
   val maxNodes = params.get("M")
   val writes = params.get("W")
   val increment = params.get("I")
@@ -84,15 +85,12 @@ object Main extends App {
 
   System.exit(0)
 
-
   var experiment = 1
   while (dht.nodeCount <= maxNodes) {
     dht.randomWrites(writes)
     stats.analyze(params, dht, experiment)
-    //dht.addNodes(increment)
+    dht.addNodes(increment)
     experiment += 1
     dht.resetJumps()
-    System.exit(0)
   }
 }
- 
