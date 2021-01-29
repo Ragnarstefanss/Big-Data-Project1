@@ -77,11 +77,6 @@ object Main extends App {
   val writes = params.get("W")
   val increment = params.get("I")
   
-  dht.randomWrites(writes)
-  stats.analyze(params, dht, 0)
-  stats.destroy()
-  System.exit(0)
-  
   var iteration = 0
   while (dht.nodeCount <= maxNodes) {
     dht.randomWrites(writes)

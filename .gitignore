@@ -36,3 +36,5 @@
 .metals/
 .vscode/
 target/
+
+.*png
