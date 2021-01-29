@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
+sns.set(rc={'figure.figsize': (12, 10)})
 
 class ResultFile:
     def __init__(self, fname):
@@ -52,10 +54,34 @@ class Data:
 
 
     def process(self):
-        _, axes = plt.subplots(nrows=1, ncols=2)
-        axes[0].bar(list(range(self.S)), self.node_e_dist)
-        axes[1].bar(list(range(self.S)), self.node_w_dist)
+        width = 0.50
+    
+        fig, ax = plt.subplots(nrows=1, ncols=2)
+        fig.suptitle('Node E dist vs Node W dist')
+        #print(self.node_e_dist)
+        barlist = ax[0].bar(list(range(self.S)), self.node_e_dist, width, label="Node e dist")
+        barlist2 = ax[1].bar(list(range(self.S)), self.node_w_dist, width, label="Node w dist", color="blue")
+        
+        ax[0].set_ylabel('Dist')
+        ax[0].set_xticklabels(list(range(self.S)))
+        ax[1].set_xticklabels(list(range(self.S)))
+
+        def color_barlist(bar, color_1, color_2):
+            for i in range(len(list(range(self.S)))):
+                if i % 2 == 0:
+                    barlist[i].set_color(color_1)
+                else:
+                    barlist[i].set_color(color_2)
+
+        color_barlist(barlist, "teal", "turquoise")
+
+        ax[0].legend()
+        ax[1].legend()
         plt.savefig(f"distribution{self.iteration}.png")
+
+
+        '''
+        '''
         plt.clf()
         plt.hist(self.jumps, len(set(self.jumps)))
         plt.savefig(f"jumps{self.iteration}.png")
