@@ -78,12 +78,15 @@ object Main extends App {
   val increment = params.get("I")
   
   var iteration = 0
-  while (dht.nodeCount <= maxNodes) {
+  while (true) {
     dht.randomWrites(writes)
     stats.analyze(params, dht, iteration)
+    if (dht.nodeCount >= maxNodes || increment == 0) {
+      stats.destroy()
+      System.exit(0)
+    }
     dht.addNodes(increment)
     iteration += 1
     dht.resetJumps()
   }
-  stats.destroy()
 }
