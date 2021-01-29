@@ -69,11 +69,12 @@ class Data:
         def color_barlist(bar, color_1, color_2):
             for i in range(len(list(range(self.S)))):
                 if i % 2 == 0:
-                    barlist[i].set_color(color_1)
+                    bar[i].set_color(color_1)
                 else:
-                    barlist[i].set_color(color_2)
+                    bar[i].set_color(color_2)
 
         color_barlist(barlist, "teal", "turquoise")
+        color_barlist(barlist2, "orange", "tomato")
 
         ax[0].legend()
         ax[1].legend()
