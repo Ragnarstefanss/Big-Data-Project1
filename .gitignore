@@ -37,4 +37,4 @@
 .vscode/
 target/
 
-.*png
+*.png
