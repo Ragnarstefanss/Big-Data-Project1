@@ -1,8 +1,0 @@
-Experiment 1
-Parameters:
-B S E W I M N
-40 10 2 3 5 30 3
-Extends size over nodes:
-0 0 0 0 1 0 0 1 0 0 
-distribution
-0 0 0 0 5 0 0 1 0 0 
