@@ -74,6 +74,14 @@ class Stats(fileName: String) {
     writeLine("Jumps")
     writeLine(dht.jumps.toArray().mkString(" "))
   }
+
+  private def writeFingerTable(dht: DHT) = {
+    writeLine("Fingertable")
+    dht.sortedNodeIds.forEach((id) => {
+      val fingers = dht.nodes.get(id).fingerTable.mkString(" ")
+      writeLine(s"$id: $fingers")
+    })
+  }
   
   def analyze(params: HashMap[String, Int], dht: DHT, iteration: Int) = {
     writeLine("########################")
@@ -83,5 +91,6 @@ class Stats(fileName: String) {
     writeAllExtents(dht)
     writeExtentResponsibility(dht)
     writeJumps(dht)
+    writeFingerTable(dht)
   }
 }

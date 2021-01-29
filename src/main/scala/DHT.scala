@@ -44,6 +44,7 @@ class DHT(
     for (n <- 1 to numberOfNodes) {
       val key = hasher.hash(keyMaker.ips.dequeue())
       if (this.nodes.containsKey(key)) throw new CollisionException()
+      println(s"Adding new node with id $key")
       this.addNode(key)
     }
   }
@@ -141,7 +142,7 @@ class DHT(
       }
     }
   }
-
+  
   private def generateInitialExtents() = {
 
     /** Add extents to the system, assigning each to the node after its id
@@ -152,11 +153,11 @@ class DHT(
       val index = binarySearchGreaterOrEqual(sortedNodeIds, id)
       val node = this.nodes.get(this.sortedNodeIds.get(index))
       node.addExtent(id)
-      var copyNode = node.fingerTable(0)
+      /*var copyNode = node.fingerTable(0)
       for (n <- 1 to copies - 1) {
         copyNode.addExtentCopy(id)
         copyNode = copyNode.fingerTable(0)
-      }
+      }*/
     })
   }
 
@@ -164,19 +165,18 @@ class DHT(
 
     /** Add a single node given its key. Its id is the hash of the key.
       */
-    // Add node to network
     if (nodes.containsKey(id)) throw new CollisionException()
     val newNode = new Node(keyBits, id)
-    nodes.put(id, newNode)
 
     // Find successor
     val successor =
       findNodeResponsibleForId(rand.randomNode(nodes, sortedNodeIds), id, false)
+    nodes.put(id, newNode)
 
     // Update links    
-    var offset = BigInt(1)
+    var offset = BigInt(2)
     for (i <- 1 to keyBits - 1) {
-      newNode.fingerTable(i) = findNodeResponsibleForId(successor, id + offset, false)
+      newNode.fingerTable(i) = findNodeResponsibleForId(successor, (id + offset).mod(mod), false)
       offset *= 2
     }
     newNode.prev = successor.prev
@@ -187,7 +187,7 @@ class DHT(
     // Get node with last copy
     var lastCopyOfKeys = successor
     var i = 0
-    for (i <- 1 to copies - 1) lastCopyOfKeys = lastCopyOfKeys.fingerTable(0)
+    for (i <- 1 to copies - 2) lastCopyOfKeys = lastCopyOfKeys.fingerTable(0)
 
     // Move extents
     val wrap = id < newNode.prev.id
@@ -200,28 +200,31 @@ class DHT(
       }
     })
     extentsToMove.forEach((k) => {
-        val extent = successor.extents.get(k)
+        newNode.extents.put(k, successor.extents.get(k))
         successor.extents.remove(k)
-        successor.extentCopies.put(k, lastCopyOfKeys.extentCopies.get(k))
-        lastCopyOfKeys.extentCopies.remove(k)
+        //successor.extentCopies.put(k, lastCopyOfKeys.extentCopies.get(k))
+        //lastCopyOfKeys.extentCopies.remove(k)
       })
 
     // Done for experimental purposes, not used for adding or finding nodes
     sortedNodeIds.add(id)
     sortedNodeIds.sort((id1, id2) => id1.compareTo(id2))
 
-
     // Update fingertables
-    nodes.values.forEach(updateFingerTable)
+    nodes.values().forEach((n) => {
+      if (n.id != newNode.id) {
+        updateFingerTable(n, newNode)
+      }
+    })
 
     // Counter
     this.nodeCount += 1
   }
 
-  private def updateFingerTable(node: Node) = {
-    var offset = BigInt(1)
+  private def updateFingerTable(node: Node, from: Node) = {
+    var offset = BigInt(2)
     for (i <- 1 to keyBits - 1) {
-      node.fingerTable(i) = findNodeResponsibleForId(node, node.id + offset, false)
+      node.fingerTable(i) = findNodeResponsibleForId(from, (node.id + offset).mod(mod), false)
       offset *= 2
     }
   }
@@ -239,12 +242,12 @@ class DHT(
     }
     node.incrementWrites(id)
 
-    var copy = node.fingerTable(0)
+    /*var copy = node.fingerTable(0)
     var i = 0
     for (i <- 1 to copies - 1) {
       copy.incrementWritesCopy(id)
-      copy = copy.fingerTable(0)
-    }
+      copy = copy.fingerTable(0)      
+    }*/
   }
 
   private def findNodeResponsibleForId(currentNode: Node, id: BigInt, trackJumps: Boolean = true): Node = {
