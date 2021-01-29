@@ -69,7 +69,7 @@ object Main extends App {
     return argMap
   }
 
-  val stats = new Stats()
+  val stats = new Stats("results.txt")
   val params = argparse(args)
   val dht =
     new DHT(params.get("S"), params.get("E"), params.get("N"), params.get("B"))
@@ -77,22 +77,17 @@ object Main extends App {
   val writes = params.get("W")
   val increment = params.get("I")
 
-  /*dht.sortedNodeIds.forEach((id) => {
-    println(id)
-    dht.nodes.get(id).extents.keySet().forEach((k) => print(k + " "))
-    println()
-  })*/
-
-  dht.addNodes(1)
-
+  stats.analyze(params, dht, 0)
+  stats.destroy()
   System.exit(0)
 
-  var experiment = 1
+  var iteration = 0
   while (dht.nodeCount <= maxNodes) {
     dht.randomWrites(writes)
-    stats.analyze(params, dht, experiment)
+    stats.analyze(params, dht, iteration)
     dht.addNodes(increment)
-    experiment += 1
+    iteration += 1
     dht.resetJumps()
   }
+  stats.destroy()
 }

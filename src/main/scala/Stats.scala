@@ -4,61 +4,84 @@ import java.io._
 import java.util.HashMap
 import scala.collection.mutable.ArrayBuffer
 import scala.annotation.meta.param
+import java.util.ArrayList
 
-class Stats() {
-  def printToFile(f: java.io.File)(op: java.io.PrintWriter => Unit) {
-    val p = new java.io.PrintWriter(f)
-    try { op(p) } finally { p.close() }
+class Stats(fileName: String) {
+
+
+  init()
+  val fileWrite = new FileWriter(fileName, true)
+  private def init() = {
+    val file = new File(fileName)    
+    if (file.exists) {
+       file.delete()
+    }
+    file.createNewFile();
+  }
+
+  def destroy() = {
+    fileWrite.close()
+  }
+
+  def writeLine(line: String) = {
+    fileWrite.write(s"$line\n")
+  }
+
+  private def writeArgs(s: Int, params: HashMap[String, Int]) = {
+    val e = params.get("E")
+    val n = params.get("N")
+    val w = params.get("W")
+    val i = params.get("I")
+    val m = params.get("M")
+    val b = params.get("B")
+    writeLine("S E N W I M B")
+    writeLine(s"$s $e $n $w $i $m $b")
+  }
+
+  private def writeNodeDistributions(dht: DHT) = {    
+    writeLine("Node IDs (sorted)")
+    writeLine(dht.sortedNodeIds.toArray().mkString(" "))
+    writeLine("Extent distribution (over nodes)")
+    writeLine(dht.sortedNodeIds.toArray().map((id) => dht.nodes.get(id).extents.size()).mkString(" "))
+    writeLine("Write distribution (over nodes)")
+    writeLine(dht.sortedNodeIds.toArray().map((id) => dht.nodes.get(id).writes).mkString(" "))
+  }
+
+  private def writeAllExtents(dht: DHT) = {
+    val extentKeys = new ArrayList[BigInt]()
+    dht.nodes.values().forEach((n) => n.extents.keySet().forEach((id) => {
+      extentKeys.add(id)
+    }))
+    extentKeys.sort((id1,id2) => id1.compareTo(id2))
+    writeLine("Extent keys (sorted)")
+    writeLine(extentKeys.toArray().mkString(" "))
+  }
+
+  private def writeExtentResponsibility(dht: DHT) = {
+    writeLine("Extents by nodes")
+    dht.sortedNodeIds.forEach((nId) => {
+      val extents = new ArrayList[BigInt]()
+      dht.nodes.get(nId).extents.keySet().forEach((eId) => {
+        extents.add(eId)
+      })
+      extents.sort((id1,id2) => id1.compareTo(id2))
+      val sortedExtentString = extents.toArray().mkString(" ")
+      writeLine(s"$nId: $sortedExtentString")
+    })
+  }
+
+  private def writeJumps(dht: DHT) = {
+    writeLine("Jumps")
+    writeLine(dht.jumps.toArray().mkString(" "))
   }
   
-  def analyze(params: HashMap[String, Int], dht: DHT, experiment: Int) = {
-    
-    val param_values = (params.get("B") + " " + params.get("S") + " " + params.get("E") + " " + params.get("W") + " " + params.get("I") + " " + params.get("M") + " " + params.get("N"))
-    //println(dht.nodes.extent)
-    
-
-    /*
-    dht.sortedNodeIds.forEach((id) => {
-      val x = dht.nodes.get(id).extents
-      print(s"$x ")
-    })*/
-     
-    var extents_size: String = ""
-    dht.sortedNodeIds.forEach((id) => {
-      val x = dht.nodes.get(id).extents.size()
-      print(s"$x ")
-      extents_size = extents_size.concat(x.toString + " ")
-    })
-    
-    
-    dht.randomWrites(params.get("W"))
-    var distribution: String = ""
-    dht.sortedNodeIds.forEach((id) => {
-      val x = dht.nodes.get(id).writes
-      distribution = distribution.concat(x.toString + " ")
-    })
-    //print("sd " + distribution)
-    
-    val data = Array(
-      "Experiment 1",
-      "Parameters:",
-      "B S E W I M N",  
-      param_values, 
-      "Extends size over nodes:",
-      extents_size,
-      "distribution",
-      distribution
-
-    )
-
-    var experiment_counter: Int = 1
-    var file_name: String = "experiment" + experiment_counter+".txt"
-    print("filename: " + file_name)
-    printToFile(new File(file_name)) { p => 
-      data.foreach(p.println)
-    }
-    experiment_counter = experiment_counter + 1
-    
-    
+  def analyze(params: HashMap[String, Int], dht: DHT, iteration: Int) = {
+    writeLine("########################")
+    writeLine(s"Iteration $iteration")    
+    writeArgs(dht.nodeCount, params)
+    writeNodeDistributions(dht)
+    writeAllExtents(dht)
+    writeExtentResponsibility(dht)
+    writeJumps(dht)
   }
 }
