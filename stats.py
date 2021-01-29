@@ -71,6 +71,7 @@ class Data:
 
         assert sorted(self.node_ids) == self.node_ids
         assert len(self.node_ids) == len(self.node_to_extents) == self.S
+        assert all(0 <= n_id < 2**self.B for n_id in self.node_ids)
 
         for n_id in self.node_ids:
             for i, f_id in enumerate(self.node_to_fingertable[n_id]):
@@ -103,7 +104,7 @@ def process_results(rf, validate=True, plot=True):
 
 def main():
     rf = ResultFile("results.txt")
-    process_results(rf, plot=False)
+    process_results(rf, validate=True, plot=False)
 
 
 if __name__ == "__main__":
