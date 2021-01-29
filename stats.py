@@ -104,7 +104,7 @@ def process_results(rf, validate=True, plot=True):
 
 def main():
     rf = ResultFile("results.txt")
-    process_results(rf, validate=True, plot=False)
+    process_results(rf, validate=True, plot=True)
 
 
 if __name__ == "__main__":
