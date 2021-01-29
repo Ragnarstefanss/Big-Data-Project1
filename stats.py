@@ -57,8 +57,7 @@ class Data:
         width = 0.50
     
         fig, ax = plt.subplots(nrows=1, ncols=2)
-        fig.suptitle('Node E dist vs Node W dist')
-        #print(self.node_e_dist)
+        fig.suptitle('Node E dist vs Node W dist -'+ str(self.iteration))
         barlist = ax[0].bar(list(range(self.S)), self.node_e_dist, width, label="Node e dist")
         barlist2 = ax[1].bar(list(range(self.S)), self.node_w_dist, width, label="Node w dist", color="blue")
         
@@ -76,6 +75,18 @@ class Data:
         color_barlist(barlist, "teal", "turquoise")
         color_barlist(barlist2, "orange", "tomato")
 
+        '''
+        def autolabel(rects):
+            """
+            Attach a text label above each bar displaying its height
+            """
+            for rect in rects:
+                height = self.node_e_dist
+                ax.text(rect.get_x() + rect.get_width()/2., 1.05*height,
+                        '%d' % int(height),
+                        ha='center', va='bottom')
+        autolabel(barlist)
+        '''
         ax[0].legend()
         ax[1].legend()
         plt.savefig(f"distribution{self.iteration}.png")
@@ -84,8 +95,11 @@ class Data:
         '''
         '''
         plt.clf()
-        plt.hist(self.jumps, len(set(self.jumps)))
+        plt.title("Jumps " + str(self.iteration), fontdict={'fontsize': 24})
+        jumps = plt.hist(self.jumps, len(set(self.jumps)), color="teal")
         plt.savefig(f"jumps{self.iteration}.png")
+
+
 
     def validate(self):
         for extent in self.node_to_extents[self.node_ids[0]]:
