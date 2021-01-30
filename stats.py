@@ -75,9 +75,6 @@ class Data:
         w_dist_avg, w_dist_std, w_dist_ratios = Data.get_stat_info(self.node_w_dist)
         e_dist_avg, e_dist_std, e_dist_ratios = Data.get_stat_info(self.node_e_dist)
 
-        # print("e_dist_ratios: " + str(e_dist_ratios))
-        # print("w_dist_ratios: " + str(w_dist_ratios))
-
         # Change every other column color to a different color
         def color_barlist(bar, color_1, color_2):
             for i in range(len(list(range(self.S)))):
@@ -122,17 +119,19 @@ class Data:
         """""" """""" """""" """""" """""" """""" """""" """""" ""
         plt.clf()
         # plt.title("n_e_dist " + str(self.iteration), fontdict={'fontsize': 24})
+        
+        #margin for images
+        r = 0.02
+        e_dist_text_location = float(r) * float(max(self.node_e_dist))
+        w_dist_text_location = float(r) * float(max(self.node_w_dist))
+
         bar_one_page = plt.bar(list(range(self.S)), self.node_e_dist, width)
 
         # Add counts above the two bar graphs
         for index, data in enumerate(self.node_e_dist):
-            plt.text(
-                x=index,
-                y=data + 1,
-                s=f"{e_dist_ratios[index]}",
-                fontdict=dict(fontsize=18),
-                ha="center",
-            )
+            plt.text(x=index, y=data+e_dist_text_location,
+                     s=f"{e_dist_ratios[index]}", fontdict=dict(fontsize=16), ha='center')
+
         plt.tight_layout()
         color_barlist(bar_one_page, "teal", "turquoise")
         plt.savefig(f"plots/node_e_dist{self.iteration}.png")
@@ -146,13 +145,10 @@ class Data:
 
         # Add counts above the bar graphs
         for index, data in enumerate(self.node_w_dist):
-            plt.text(
-                x=index,
-                y=data + 1,
-                s=f"{w_dist_ratios[index]}",
-                fontdict=dict(fontsize=18),
-                ha="center",
-            )
+            #old-value y=data+5000
+            plt.text(x=index, y=data+w_dist_text_location,
+                     s=f"{w_dist_ratios[index]}", fontdict=dict(fontsize=16), ha='center')
+
         plt.tight_layout()
         color_barlist(bar_one_page2, "teal", "turquoise")
         plt.savefig(f"plots/node_w_dist{self.iteration}.png")
@@ -211,7 +207,7 @@ def process_results(rf, validate=True, plot=True):
 
 def main():
     rf = ResultFile("results.txt")
-    process_results(rf, validate=True, plot=False)
+    process_results(rf, validate=True, plot=True)
 
 
 if __name__ == "__main__":
