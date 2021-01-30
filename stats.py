@@ -66,6 +66,10 @@ class Data:
         w_dist_avg, w_dist_std, w_dist_ratios = Data.get_stat_info(self.node_w_dist)
         e_dist_avg, e_dist_std, e_dist_ratios = Data.get_stat_info(self.node_e_dist)
 
+        #r = 0.1
+        #e_dist_text_location = float(max(e_dist_ratios)) * float(max(e_dist_ratios))
+        #w_dist_text_location = float(max(w_dist_ratios)) * float(max(w_dist_ratios))
+
         #print("e_dist_ratios: " + str(e_dist_ratios))
         #print("w_dist_ratios: " + str(w_dist_ratios))
 
@@ -110,11 +114,15 @@ class Data:
         ''''''''''''''''''''''''''''''''''''''''''''''''''
         plt.clf()
         #plt.title("n_e_dist " + str(self.iteration), fontdict={'fontsize': 24})
+        r = 0.02
+        e_dist_text_location = float(r) * float(max(self.node_e_dist))
+        w_dist_text_location = float(r) * float(max(self.node_w_dist))
+
         bar_one_page = plt.bar(list(range(self.S)), self.node_e_dist, width)
 
         # Add counts above the two bar graphs
         for index, data in enumerate(self.node_e_dist):
-            plt.text(x=index, y=data+15,
+            plt.text(x=index, y=data+e_dist_text_location,
                      s=f"{e_dist_ratios[index]}", fontdict=dict(fontsize=16), ha='center')
 
         plt.tight_layout()
@@ -130,7 +138,8 @@ class Data:
 
         # Add counts above the bar graphs
         for index, data in enumerate(self.node_w_dist):
-            plt.text(x=index, y=data+5000,
+            #old-value y=data+5000
+            plt.text(x=index, y=data+w_dist_text_location,
                      s=f"{w_dist_ratios[index]}", fontdict=dict(fontsize=16), ha='center')
 
         plt.tight_layout()
