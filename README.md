@@ -3,7 +3,7 @@
 This is a very simple DHT using Chord overlay. It only support writes and adding new nodes.
 
 ## Resources
-There are 2 resource files called `ips.txt` and `movies.txt`. They serve as keys for the nodes and extents respectively. The IPs are randomly generated non-private IPs and the movies are from [alphabetizer](https://alphabetizer.flap.tv/lists/list-of-every-movie-ever-made.php. This way our distribution of nodes and extents is deterministic.
+There are 2 resource files called `ips.txt` and `movies.txt`. They serve as keys for the nodes and extents respectively. The IPs are randomly generated non-private IPs and the movies are from [alphabetizer](https://alphabetizer.flap.tv/lists/list-of-every-movie-ever-made.php). This way our distribution of nodes and extents is deterministic.
 
 ## Extent
 An extent is a file stored on some node. The Extent object is just a placeholder with nothing but a counter to track writes.
@@ -46,5 +46,5 @@ There are optional arguments as well and any subset of them can be set. They are
 * `-M` The maximum number of servers. Defaults to 30.
 * `-B` Makes the keyspace `[0, pow(2, B))`. Defaults to 40.
 ```sh
-sbr "run -S 30 -W 5000"
+sbt "run -S 30 -W 5000"
 ```
