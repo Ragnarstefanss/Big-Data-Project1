@@ -117,7 +117,7 @@ class Data:
 
         #float(max(self.node_e_dist))
         max_jump = max(self.jumps)
-        jumps = plt.hist(self.jumps, max_jump + 1, color="teal")
+        jumps = plt.hist(self.jumps, list(x -0.5 for x in range(max_jump+1)), color="teal")
         plt.xticks(range(max_jump + 1))
         plt.savefig(f"plots/jumps{self.iteration}.png")
 
