@@ -114,13 +114,11 @@ class Data:
         """""" """""" """""" """""" """""" """"""
         plt.clf()
         # plt.title("Jumps " + str(self.iteration), fontdict={'fontsize': 24})
-        empty_number_jumps = []
-        for i in range(max(self.jumps)+1):
-            empty_number_jumps.append(i)
 
         #float(max(self.node_e_dist))
-        jumps = plt.hist(self.jumps, len(set(self.jumps)), color="teal")
-        plt.xticks(empty_number_jumps)
+        max_jump = max(self.jumps)
+        jumps = plt.hist(self.jumps, max_jump + 1, color="teal")
+        plt.xticks(range(max_jump + 1))
         plt.savefig(f"plots/jumps{self.iteration}.png")
 
         """""" """""" """""" """""" """""" """""" """""" """""" ""
