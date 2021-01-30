@@ -34,7 +34,11 @@
 
 .git/
 .metals/
+.bloop/
+project/
 .vscode/
 target/
-
 plots/*.png
+ips.txt
+movies.txt
+results.txt
