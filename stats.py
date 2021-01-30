@@ -75,8 +75,8 @@ class Data:
         w_dist_avg, w_dist_std, w_dist_ratios = Data.get_stat_info(self.node_w_dist)
         e_dist_avg, e_dist_std, e_dist_ratios = Data.get_stat_info(self.node_e_dist)
 
-        # print("e_dist_ratios: " + str(e_dist_ratios))
-        # print("w_dist_ratios: " + str(w_dist_ratios))
+        print("e_dist_std: " + str(e_dist_std))
+        print("w_dist_std: " + str(w_dist_std))
 
         # Change every other column color to a different color
         def color_barlist(bar, color_1, color_2):
@@ -211,7 +211,7 @@ def process_results(rf, validate=True, plot=True):
 
 def main():
     rf = ResultFile("results.txt")
-    process_results(rf, validate=True, plot=False)
+    process_results(rf)
 
 
 if __name__ == "__main__":

@@ -27,6 +27,23 @@ class DHT(
   generateInitialExtents()
 
   // Interface
+  def resetWriteCounts(resetExtents: Boolean = false) = {
+    /** Reset node writes to measure new distribution
+      */
+    nodes.values().forEach((n) => {
+      n.writes = 0
+      if (resetExtents) {
+        n.extentCopies.values().forEach((copyMap) => {
+          copyMap.values().forEach((e) => {
+            e.writes = 0
+          })
+        })
+        n.extents.values().forEach((e) => {
+          e.writes = 0
+        })
+      }
+    })
+  }
 
   def resetJumps() = {
 

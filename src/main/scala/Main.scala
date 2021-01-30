@@ -88,5 +88,6 @@ object Main extends App {
     dht.addNodes(increment)
     iteration += 1
     dht.resetJumps()
+    dht.resetWriteCounts()
   }
 }
