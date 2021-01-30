@@ -74,23 +74,22 @@ class Data:
 
         color_barlist(barlist, "teal", "turquoise")
         color_barlist(barlist2, "orange", "tomato")
-
-        '''
-        def autolabel(rects):
-            """
-            Attach a text label above each bar displaying its height
-            """
-            for rect in rects:
-                height = self.node_e_dist
-                ax.text(rect.get_x() + rect.get_width()/2., 1.05*height,
-                        '%d' % int(height),
-                        ha='center', va='bottom')
-        autolabel(barlist)
-        '''
         ax[0].legend()
         ax[1].legend()
         plt.savefig(f"distribution{self.iteration}.png")
 
+        plt.clf()
+        bar_width = 0.4
+        bar_one_page = plt.bar(list(range(self.S)), self.node_e_dist, width)
+
+        # Add counts above the two bar graphs
+        for index, data in enumerate(self.node_e_dist):
+            plt.text(x=index, y=data+1, s=f"{data}", fontdict=dict(fontsize=18), ha='center')
+
+        plt.legend()
+        plt.tight_layout()
+        color_barlist(bar_one_page, "teal", "turquoise")
+        plt.savefig(f"node_e_dist{self.iteration}.png")
 
         '''
         '''
