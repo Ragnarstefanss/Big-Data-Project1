@@ -114,7 +114,8 @@ class Data:
 
         # Add counts above the two bar graphs
         for index, data in enumerate(self.node_e_dist):
-            plt.text(x=index, y=data+1, s=f"{e_dist_ratios[index]}", fontdict=dict(fontsize=18), ha='center')
+            plt.text(x=index, y=data+15,
+                     s=f"{e_dist_ratios[index]}", fontdict=dict(fontsize=16), ha='center')
 
         plt.tight_layout()
         color_barlist(bar_one_page, "teal", "turquoise")
@@ -129,8 +130,8 @@ class Data:
 
         # Add counts above the bar graphs
         for index, data in enumerate(self.node_w_dist):
-            plt.text(x=index, y=data+1,
-                     s=f"{w_dist_ratios[index]}", fontdict=dict(fontsize=18), ha='center')
+            plt.text(x=index, y=data+5000,
+                     s=f"{w_dist_ratios[index]}", fontdict=dict(fontsize=16), ha='center')
 
         plt.tight_layout()
         color_barlist(bar_one_page2,  "teal", "turquoise")
