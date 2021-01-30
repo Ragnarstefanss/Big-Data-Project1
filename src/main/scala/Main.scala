@@ -76,9 +76,6 @@ object Main extends App {
   val maxNodes = params.get("M")
   val writes = params.get("W")
   val increment = params.get("I")
-
-  //dht.sortedNodeIds.forEach((i) => print(dht.nodes.get(i).extents.size() + " "))
-  //System.exit(0)
   
   var iteration = 0
   while (true) {
