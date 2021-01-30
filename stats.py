@@ -63,8 +63,11 @@ class Data:
         return f"{avg:.2f}", f"{std:.2f}", ratios
 
     def process(self):
-        e_dist_avg, e_dist_std, e_dist_ratios = Data.get_stat_info(self.node_e_dist)
         w_dist_avg, w_dist_std, w_dist_ratios = Data.get_stat_info(self.node_w_dist)
+        e_dist_avg, e_dist_std, e_dist_ratios = Data.get_stat_info(self.node_e_dist)
+
+        #print("e_dist_ratios: " + str(e_dist_ratios))
+        #print("w_dist_ratios: " + str(w_dist_ratios))
 
         # Change every other column color to a different color
         def color_barlist(bar, color_1, color_2):
@@ -80,14 +83,15 @@ class Data:
         '''   DISTRIBUTION  2 COLUMNS    '''
         ''''''''''''''''''''''''''''''''''''
         fig, ax = plt.subplots(nrows=1, ncols=2)
-        fig.suptitle('Node E dist vs Node W dist -'+ str(self.iteration))
+        #fig.suptitle('Node E dist vs Node W dist -'+ str(self.iteration))
         barlist = ax[0].bar(list(range(self.S)), self.node_e_dist, width, label="Node e dist")
-        barlist2 = ax[1].bar(list(range(self.S)), self.node_w_dist, width, label="Node w dist", color="blue")
+        barlist2 = ax[1].bar(list(range(self.S)), self.node_w_dist, width, label="Node w dist")
+        plt.tight_layout()
         ax[0].set_ylabel('Dist')
         ax[0].set_xticklabels(list(range(self.S)))
         ax[1].set_xticklabels(list(range(self.S)))
         color_barlist(barlist, "teal", "turquoise")
-        color_barlist(barlist2, "orange", "tomato")
+        color_barlist(barlist2, "teal", "turquoise")
         ax[0].legend()
         ax[1].legend()
         plt.savefig(f"plots/distribution{self.iteration}.png")
@@ -96,7 +100,7 @@ class Data:
         '''            JUMPS             '''
         ''''''''''''''''''''''''''''''''''''
         plt.clf()
-        plt.title("Jumps " + str(self.iteration), fontdict={'fontsize': 24})
+        #plt.title("Jumps " + str(self.iteration), fontdict={'fontsize': 24})
         jumps = plt.hist(self.jumps, len(set(self.jumps)), color="teal")
         plt.savefig(f"plots/jumps{self.iteration}.png")
 
@@ -105,12 +109,12 @@ class Data:
         '''  DISTRIBUTION  E ONE COLUMN W/ TEXT ABOVE  '''
         ''''''''''''''''''''''''''''''''''''''''''''''''''
         plt.clf()
-        plt.title("n_e_dist " + str(self.iteration), fontdict={'fontsize': 24})
+        #plt.title("n_e_dist " + str(self.iteration), fontdict={'fontsize': 24})
         bar_one_page = plt.bar(list(range(self.S)), self.node_e_dist, width)
 
         # Add counts above the two bar graphs
         for index, data in enumerate(self.node_e_dist):
-            plt.text(x=index, y=data+1, s=f"{data}", fontdict=dict(fontsize=18), ha='center')
+            plt.text(x=index, y=data+1, s=f"{e_dist_ratios[index]}", fontdict=dict(fontsize=18), ha='center')
 
         plt.tight_layout()
         color_barlist(bar_one_page, "teal", "turquoise")
@@ -120,15 +124,16 @@ class Data:
         '''  DISTRIBUTION  W ONE COLUMN W/ TEXT ABOVE  '''
         ''''''''''''''''''''''''''''''''''''''''''''''''''
         plt.clf()
-        plt.title("n_w_dist " + str(self.iteration), fontdict={'fontsize': 24})
+        #plt.title("n_w_dist " + str(self.iteration), fontdict={'fontsize': 24})
         bar_one_page2 = plt.bar(list(range(self.S)), self.node_w_dist, width)
 
         # Add counts above the bar graphs
         for index, data in enumerate(self.node_w_dist):
-            plt.text(x=index, y=data+1, s=f"{data}", fontdict=dict(fontsize=18), ha='center')
+            plt.text(x=index, y=data+1,
+                     s=f"{w_dist_ratios[index]}", fontdict=dict(fontsize=18), ha='center')
 
         plt.tight_layout()
-        color_barlist(bar_one_page2,  "orange", "tomato")
+        color_barlist(bar_one_page2,  "teal", "turquoise")
         plt.savefig(f"plots/node_w_dist{self.iteration}.png")
         
         
