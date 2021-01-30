@@ -8,13 +8,12 @@ import java.util.ArrayList
 
 class Stats(fileName: String) {
 
-
   init()
   val fileWrite = new FileWriter(fileName, true)
   private def init() = {
-    val file = new File(fileName)    
+    val file = new File(fileName)
     if (file.exists) {
-       file.delete()
+      file.delete()
     }
     file.createNewFile();
   }
@@ -38,21 +37,37 @@ class Stats(fileName: String) {
     writeLine(s"$s $e $n $w $i $m $b")
   }
 
-  private def writeNodeDistributions(dht: DHT) = {    
+  private def writeNodeDistributions(dht: DHT) = {
     writeLine("Node IDs (sorted)")
     writeLine(dht.sortedNodeIds.toArray().mkString(" "))
     writeLine("Extent distribution (over nodes)")
-    writeLine(dht.sortedNodeIds.toArray().map((id) => dht.nodes.get(id).extents.size()).mkString(" "))
+    writeLine(
+      dht.sortedNodeIds
+        .toArray()
+        .map((id) => dht.nodes.get(id).extents.size())
+        .mkString(" ")
+    )
     writeLine("Write distribution (over nodes)")
-    writeLine(dht.sortedNodeIds.toArray().map((id) => dht.nodes.get(id).writes).mkString(" "))
+    writeLine(
+      dht.sortedNodeIds
+        .toArray()
+        .map((id) => dht.nodes.get(id).writes)
+        .mkString(" ")
+    )
   }
 
   private def writeAllExtents(dht: DHT) = {
     val extentKeys = new ArrayList[BigInt]()
-    dht.nodes.values().forEach((n) => n.extents.keySet().forEach((id) => {
-      extentKeys.add(id)
-    }))
-    extentKeys.sort((id1,id2) => id1.compareTo(id2))
+    dht.nodes
+      .values()
+      .forEach((n) =>
+        n.extents
+          .keySet()
+          .forEach((id) => {
+            extentKeys.add(id)
+          })
+      )
+    extentKeys.sort((id1, id2) => id1.compareTo(id2))
     writeLine("Extent keys (sorted)")
     writeLine(extentKeys.toArray().mkString(" "))
   }
@@ -61,10 +76,14 @@ class Stats(fileName: String) {
     writeLine("Extents by nodes")
     dht.sortedNodeIds.forEach((nId) => {
       val extents = new ArrayList[BigInt]()
-      dht.nodes.get(nId).extents.keySet().forEach((eId) => {
-        extents.add(eId)
-      })
-      extents.sort((id1,id2) => id1.compareTo(id2))
+      dht.nodes
+        .get(nId)
+        .extents
+        .keySet()
+        .forEach((eId) => {
+          extents.add(eId)
+        })
+      extents.sort((id1, id2) => id1.compareTo(id2))
       val sortedExtentString = extents.toArray().mkString(" ")
       writeLine(s"$nId: $sortedExtentString")
     })
@@ -87,19 +106,25 @@ class Stats(fileName: String) {
     writeLine("Copies")
     dht.sortedNodeIds.forEach((id) => {
       val arr = new ArrayList[BigInt]()
-      dht.nodes.get(id).extentCopies.values().forEach((copyMap) => {
-        copyMap.keySet().forEach((copyId) => {
-          arr.add(copyId)
+      dht.nodes
+        .get(id)
+        .extentCopies
+        .values()
+        .forEach((copyMap) => {
+          copyMap
+            .keySet()
+            .forEach((copyId) => {
+              arr.add(copyId)
+            })
         })
-      })
       val arrStr = arr.toArray().mkString(" ")
       writeLine(s"$id: $arrStr")
     })
   }
-  
+
   def analyze(params: HashMap[String, Int], dht: DHT, iteration: Int) = {
     writeLine("########################")
-    writeLine(s"Iteration $iteration")    
+    writeLine(s"Iteration $iteration")
     writeArgs(dht.nodeCount, params)
     writeNodeDistributions(dht)
     writeAllExtents(dht)

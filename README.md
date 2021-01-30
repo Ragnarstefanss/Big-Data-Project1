@@ -17,7 +17,7 @@ Contains various helper functions for hashing, randomly selecting for experiment
 ## DHT
 The DHT class contains our network of nodes. Its interface is simple and only supports adding random nodes and doing random writes (and reseting the jump array which is only for statistical purposes). 
 
-When initialized we grab keys for nodes and extents from a queue and hash them with SHA-1 into a `BigInt` modulo `pow(2,m)`. We then sort the nodes (by there id) and form a Chord ring, initialize fingertable and add the extents to their appropriate nodes. The latter two are done with altered binary search since we have the sorted nodes ids (greater or equal binary search that wraps). The sorted ids are maintained thereafter only for statistical and testing purposes. Each extent has their copies in the nodes succeding theirs. 
+When initialized we grab keys for nodes and extents from a queue and hash them with SHA-1 into a `BigInt` modulo `pow(2,m)`. We then sort the nodes (by there id) and form a Chord ring, initialize fingertable and add the extents to their appropriate nodes. The latter two are done with altered binary search since we have the sorted nodes ids (greater or equal binary search that wraps). The sorted ids are maintained thereafter only for statistical and testing purposes. Each extent has their copies in the nodes succeding theirs. They are stored in an internal dictionary where keys are the original owner.
 
 Random writes will pick a random starting node and simulate all the writes from it. The correct node is found using the fingertable. We track the jumps for every write as well as the number of writes each node and extent gets. We also update the writes in the extent copies (but not the Nodes containing them).
 
@@ -30,7 +30,7 @@ Is a class that writes the result of an experiment to file. It divides it into i
 are dynamically adding new nodes.
 
 ## Python script
-The python script serves two purposes. First, it has asserts to validate fingertable and extent ownerships. Second, it processes the stats file produces in Scala and creates plots from it.
+The python script serves two purposes. First, it has asserts to validate fingertable and extent ownerships. Second, it processes the stats file produces in Scala and creates plots from it. It requires the `result.txt` file that our Scala program reduces to work.
 
 ## How to run
 We used [Metals](https://scalameta.org/metals/) to build, run and debug the project. The most simple way to run this is using

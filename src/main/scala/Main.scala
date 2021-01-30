@@ -76,7 +76,7 @@ object Main extends App {
   val maxNodes = params.get("M")
   val writes = params.get("W")
   val increment = params.get("I")
-  
+
   var iteration = 0
   while (true) {
     dht.randomWrites(writes)

@@ -22,8 +22,10 @@ class Node(keyBits: Int, val id: BigInt, numberOfCopies: Int) {
   }
 
   def addExtentCopy(id: BigInt, original: BigInt) = {
-    if (!extentCopies.containsKey(original)) extentCopies.put(original, new HashMap[BigInt, Extent]())
-    if (extentCopies.get(original).containsKey(id)) throw new CollisionException()
+    if (!extentCopies.containsKey(original))
+      extentCopies.put(original, new HashMap[BigInt, Extent]())
+    if (extentCopies.get(original).containsKey(id))
+      throw new CollisionException()
     extentCopies.get(original).put(id, new Extent())
   }
 
