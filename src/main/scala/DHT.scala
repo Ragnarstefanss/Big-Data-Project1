@@ -38,7 +38,7 @@ class DHT(
 
   def addNodes(numberOfNodes: Int) = {
 
-    /** Add <nodes> new Nodes to the system.
+    /** Add <numberOfNodes> new Nodes to the system.
       */
     var n = 0;
     for (n <- 1 to numberOfNodes) {
