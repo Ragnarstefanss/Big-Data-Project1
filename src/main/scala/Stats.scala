@@ -82,6 +82,20 @@ class Stats(fileName: String) {
       writeLine(s"$id: $fingers")
     })
   }
+
+  private def writeCopies(dht: DHT) = {
+    writeLine("Copies")
+    dht.sortedNodeIds.forEach((id) => {
+      val arr = new ArrayList[BigInt]()
+      dht.nodes.get(id).extentCopies.values().forEach((copyMap) => {
+        copyMap.keySet().forEach((copyId) => {
+          arr.add(copyId)
+        })
+      })
+      val arrStr = arr.toArray().mkString(" ")
+      writeLine(s"$id: $arrStr")
+    })
+  }
   
   def analyze(params: HashMap[String, Int], dht: DHT, iteration: Int) = {
     writeLine("########################")
@@ -92,5 +106,6 @@ class Stats(fileName: String) {
     writeExtentResponsibility(dht)
     writeJumps(dht)
     writeFingerTable(dht)
+    writeCopies(dht)
   }
 }

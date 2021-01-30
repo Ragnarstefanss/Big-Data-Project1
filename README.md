@@ -42,7 +42,7 @@ There are optional arguments as well and any subset of them can be set. They are
 * `-E` The number of extents. Defaults to 10000.
 * `-N` The number of copies of each extents. Defaults to 3.
 * `-W` The number of random writes in each iteration. Defaults to 1000000.
-* `-I` The number of servers to add in each iteration. Defaults to 5.
+* `-I` The number of servers to add in each iteration. If set to 0, a single iteration is done. Defaults to 5.
 * `-M` The maximum number of servers. Defaults to 30.
 * `-B` Makes the keyspace `[0, pow(2, B))`. Defaults to 40.
 ```sh

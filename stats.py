@@ -51,6 +51,15 @@ class Data:
         for _ in range(self.S):
             line = rf.get_next().split()
             self.node_to_fingertable[int(line[0][:-1])] = list(map(int, line[1:]))
+        rf.dump()
+        self.node_to_copies = {}
+        for _ in range(self.S):
+            line = rf.get_next().split()
+            copies = list(map(int, line[1:]))
+            copiesSet = set(copies)
+            assert len(copies) == len(copiesSet)
+            self.node_to_copies[int(line[0][:-1])] = copiesSet
+
 
     
     @staticmethod
@@ -171,6 +180,15 @@ class Data:
                         print(' '.join(map(str, self.node_ids)), flush=True)
                         assert False
         print("Fingertables valid")
+
+        for n_id in self.node_ids:
+            for extent in self.node_to_extents[n_id]:
+                curr_node = n_id
+                for i in range(self.N):
+                    curr_node = self.node_to_fingertable[curr_node][0]
+                    assert extent in self.node_to_copies[curr_node]
+        print("Copies valid")
+
         print("Validation complete")
         
         
@@ -184,7 +202,7 @@ def process_results(rf, validate=True, plot=True):
 
 def main():
     rf = ResultFile("results.txt")
-    process_results(rf, validate=True, plot=True)
+    process_results(rf, validate=True, plot=False)
 
 
 if __name__ == "__main__":
