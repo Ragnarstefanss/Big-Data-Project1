@@ -52,8 +52,20 @@ class Data:
             line = rf.get_next().split()
             self.node_to_fingertable[int(line[0][:-1])] = list(map(int, line[1:]))
 
+    
+    @staticmethod
+    def get_stat_info(lis):
+        n = len(lis)
+        s = sum(lis)
+        avg = s / n
+        std = sum((x - avg) ** 2 / (n-1) for x in lis) ** 0.5
+        ratios = list(map(lambda x: str(round(100 * x / s)), lis))
+        return f"{avg:.2f}", f"{std:.2f}", ratios
 
     def process(self):
+        e_dist_avg, e_dist_std, e_dist_ratios = Data.get_stat_info(self.node_e_dist)
+        w_dist_avg, w_dist_std, w_dist_ratios = Data.get_stat_info(self.node_w_dist)
+
         # Change every other column color to a different color
         def color_barlist(bar, color_1, color_2):
             for i in range(len(list(range(self.S)))):
