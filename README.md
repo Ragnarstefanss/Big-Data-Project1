@@ -26,7 +26,7 @@ Adding a new node will grab a key from the queue and hash it and use the fingert
 In any collision cases we throw an exception in which case one should increase the keyspace.
 
 ## Stats
-Is a writes the result of an experiment to file. It divides it into iterations when we
+Is a class that writes the result of an experiment to file. It divides it into iterations when we
 are dynamically adding new nodes.
 
 ## Python script
