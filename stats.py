@@ -114,7 +114,13 @@ class Data:
         """""" """""" """""" """""" """""" """"""
         plt.clf()
         # plt.title("Jumps " + str(self.iteration), fontdict={'fontsize': 24})
+        empty_number_jumps = []
+        for i in range(max(self.jumps)+1):
+            empty_number_jumps.append(i)
+
+        #float(max(self.node_e_dist))
         jumps = plt.hist(self.jumps, len(set(self.jumps)), color="teal")
+        plt.xticks(empty_number_jumps)
         plt.savefig(f"plots/jumps{self.iteration}.png")
 
         """""" """""" """""" """""" """""" """""" """""" """""" ""
@@ -122,7 +128,7 @@ class Data:
         """""" """""" """""" """""" """""" """""" """""" """""" ""
         plt.clf()
         # plt.title("n_e_dist " + str(self.iteration), fontdict={'fontsize': 24})
-        
+
         #margin for images
         r = 0.02
         e_dist_text_location = float(r) * float(max(self.node_e_dist))
