@@ -58,8 +58,8 @@ class Data:
         n = len(lis)
         s = sum(lis)
         avg = s / n
-        std = sum((x - avg) ** 2 / (n-1) for x in lis) ** 0.5
-        ratios = list(map(lambda x: str(round(100 * x / s)), lis))
+        std = sum((x - avg) ** 2 / (n-1) for x in lis) ** 0.5        
+        ratios = list(map(lambda x: f"{100 * x / s:.1f}", lis))
         return f"{avg:.2f}", f"{std:.2f}", ratios
 
     def process(self):
