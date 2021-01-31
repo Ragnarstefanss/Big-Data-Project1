@@ -26,7 +26,6 @@ class DHT(
   generateInitialNodes()
   generateInitialExtents()
 
-  // Interface
   def resetWriteCounts(resetExtents: Boolean = false) = {
     /** Reset node writes to measure new distribution
       */
