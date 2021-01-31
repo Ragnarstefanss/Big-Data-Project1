@@ -2,6 +2,9 @@
 
 This is a very simple DHT using Chord overlay. It only support writes and adding new nodes.
 
+## Report
+You can download our report [here](https://github.com/Ragnarstefanss/Big-Data-Project1/raw/main/report/main.pdf).
+
 ## Resources
 There are 2 resource files called `ips.txt` and `movies.txt`. They serve as keys for the nodes and extents respectively. The IPs are randomly generated non-private IPs and the movies are from [alphabetizer](https://alphabetizer.flap.tv/lists/list-of-every-movie-ever-made.php). This way our distribution of nodes and extents is deterministic.
 
